@@ -20,7 +20,6 @@ const generateAccessAndRefreshToken = async (userId) => {
     return { accessToken, refreshToken }
 }
 
-
 const registerUser = asyncHandler(async (req, res) => {
 
     const { fullName, email, username, password } = req.body
@@ -128,8 +127,32 @@ const loginUser = asyncHandler(async (req, res) => {
         )
 })
 
+const logoutUser = asyncHandler(async (req, res) => {
+    const userId = req.user._id
+
+    if (!userId) {
+        throw new ApiError(400, "User ID is required to logout")
+    }
+
+    const user = await User.findById(userId)
+    if (!user) {
+        throw new ApiError(404, "User not found")
+    }
+    user.refreshToken = null
+    await user.save({ validateBeforeSave: false })
+
+    return res
+        .status(200)
+        .clearCookie("refreshToken")
+        .clearCookie("accessToken")
+        .json(
+            new ApiResponse(200, null, "User logged out successfully")
+        )
+})
+
 
 export {
     registerUser,
-    loginUser
+    loginUser,
+    logoutUser
 }
