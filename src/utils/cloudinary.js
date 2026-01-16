@@ -1,36 +1,56 @@
-import { v2 as cloudinary } from "cloudinary"
-import fs from "fs"
+// utils/cloudinary.js
+import { v2 as cloudinary } from "cloudinary";
+import fs from "fs";
 
 
-const uploadOnCloudinary = async (localFilePath) => {
+
+export const uploadOnCloudinary = async (
+    localFilePath,
+    resourceType = "auto",
+    folder = ""
+) => {
     try {
-        if (!localFilePath) return null
+        if (!localFilePath) return null;
 
-        // Configure cloudinary here so env vars are loaded
         cloudinary.config({
             cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
             api_key: process.env.CLOUDINARY_API_KEY,
             api_secret: process.env.CLOUDINARY_API_SECRET
         });
 
-        //upload the file on cloudinary
         const response = await cloudinary.uploader.upload(localFilePath, {
-            resource_type: "auto"
-        })
-        // file has been uploaded successfull
-        // console.log("file is uploaded on cloudinary ", response.url);
-        fs.unlinkSync(localFilePath)
-        return response;
+            resource_type: resourceType,
+            folder: folder || undefined
+        });
 
-    } catch (error) {
-        console.log("Cloudinary upload error: ", error);
-        if (localFilePath && fs.existsSync(localFilePath)) {
-            fs.unlinkSync(localFilePath) // remove the locally saved temporary file as the upload operation got failed
+        if (fs.existsSync(localFilePath)) {
+            fs.unlinkSync(localFilePath);
         }
-        return null;
+
+        return response;
+    } catch (error) {
+        if (localFilePath && fs.existsSync(localFilePath)) {
+            fs.unlinkSync(localFilePath);
+        }
+        throw error;
     }
-}
+};
 
+export const deleteFromCloudinary = async (publicId, resourceType = "image") => {
+    try {
+        if (!publicId) return null;
+        cloudinary.config({
+            cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+            api_key: process.env.CLOUDINARY_API_KEY,
+            api_secret: process.env.CLOUDINARY_API_SECRET
+        });
 
+        const response = await cloudinary.uploader.destroy(publicId, {
+            resource_type: resourceType
+        });
 
-export { uploadOnCloudinary }
+        return response;
+    } catch (error) {
+        throw error;
+    }
+};
