@@ -189,4 +189,68 @@ const deleteVideo = asyncHandler(async (req, res) => {
         .json(new ApiResponse(true, null, "Video deleted successfully"));
 });
 
-export { publishAVideo, getVideoById, updateVideo, deleteVideo };
+const togglePublishStatus = asyncHandler(async (req, res) => {
+    const { videoId } = req.params;
+
+    if (!isValidObjectId(videoId)) {
+        throw new ApiError(400, "Invalid video ID");
+    }
+    const video = await Video.findById(videoId);
+    if (!video) {
+        throw new ApiError(404, "Video not found");
+    }
+    if (video.owner.toString() !== req.user._id.toString()) {
+        throw new ApiError(403, "You are not authorized to update this video");
+    }
+    video.isPublished = !video.isPublished;
+    await video.save();
+    return res
+        .status(200)
+        .json(new ApiResponse(true, video.isPublished, "Publish status toggled successfully"));
+});
+
+const getAllVideos = asyncHandler(async (req, res) => {
+
+    const { page = 1, limit = 10, query, sortBy, sortType, userId } = req.query
+
+    const filters = { isPublished: true };
+
+    if (query) {
+        filters.$or = [
+            { title: { $regex: query, $options: "i" } },
+            { description: { $regex: query, $options: "i" } }
+        ];
+    }
+    if (userId && isValidObjectId(userId)) {
+        filters.owner = userId;
+    }
+    const sortOptions = {};
+    if (sortBy) {
+        const sortField = sortBy;
+        const sortOrder = sortType === "desc" ? -1 : 1;
+        sortOptions[sortField] = sortOrder;
+    } else {
+        sortOptions.createdAt = -1; // Default sorting by creation date descending
+    }
+
+    const videos = await Video
+        .find(filters)
+        .sort(sortOptions)
+        .skip((page - 1) * limit)
+        .limit(parseInt(limit))
+        .populate("owner", "username avatar")
+        .select("-videoPublicId -thumbnailPublicId")
+        .lean();
+
+    if (!videos.length) {
+        return res
+            .status(200)
+            .json(new ApiResponse(true, [], "No videos found"));
+    }
+
+    return res
+        .status(200)
+        .json(new ApiResponse(true, videos, "Videos fetched successfully"));
+});
+
+export { publishAVideo, getVideoById, updateVideo, deleteVideo, togglePublishStatus, getAllVideos };

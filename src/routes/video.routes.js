@@ -3,7 +3,9 @@ import {
     publishAVideo,
     getVideoById,
     updateVideo,
-    deleteVideo
+    deleteVideo,
+    togglePublishStatus,
+    getAllVideos
 
 } from "../controllers/video.controller.js"
 import { verifyJwt } from "../middlewares/auth.middleware.js"
@@ -15,7 +17,7 @@ router.use(verifyJwt); // Apply verifyJwt middleware to all routes in this file
 
 router
     .route("/")
-    // .get(getAllVideos)
+    .get(getAllVideos)
     .post(
         upload.fields([
             {
@@ -36,5 +38,7 @@ router
     .get(getVideoById)
     .delete(deleteVideo)
     .patch(upload.single("thumbnail"), updateVideo);
+
+router.route("/toggle/publish/:videoId").patch(togglePublishStatus);
 
 export default router;
