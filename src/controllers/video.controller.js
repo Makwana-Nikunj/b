@@ -73,5 +73,120 @@ const publishAVideo = asyncHandler(async (req, res) => {
         .json(new ApiResponse(true, videoResponse, "Video published successfully"));
 });
 
+const getVideoById = asyncHandler(async (req, res) => {
+    const { videoId } = req.params;
 
-export { publishAVideo }
+    if (!isValidObjectId(videoId)) {
+        throw new ApiError(400, "Invalid video ID");
+    }
+    const video = await Video
+        .findById(videoId)
+        .populate("owner", "username avatar")
+        .select("-videoPublicId -thumbnailPublicId")
+        .lean();
+
+
+    if (!video) {
+        throw new ApiError(404, "Video not found");
+    }
+    return res
+        .status(200)
+        .json(new ApiResponse(true, video, "Video fetched successfully"));
+
+});
+
+const updateVideo = asyncHandler(async (req, res) => {
+    const { videoId } = req.params;
+    const { title, description } = req.body;
+    const thumbnailFile = req.file;
+
+    if (!isValidObjectId(videoId)) {
+        throw new ApiError(400, "Invalid video ID");
+    }
+
+    const existingVideo = await Video.findById(videoId);
+
+    if (!existingVideo) {
+        throw new ApiError(404, "Video not found");
+    }
+
+    if (existingVideo.owner.toString() !== req.user._id.toString()) {
+        throw new ApiError(403, "You are not authorized to update this video");
+    }
+
+    if ([title, description].some(f => f?.trim() === "")) {
+        throw new ApiError(400, "Fields cannot be empty strings");
+    }
+
+    if (title && title.length > 100) {
+        throw new ApiError(400, "Title must be under 100 characters");
+    }
+
+    if (description && description.length > 500) {
+        throw new ApiError(400, "Description must be under 500 characters");
+    }
+
+    const updateFields = {};
+
+    if (title) updateFields.title = title;
+    if (description) updateFields.description = description;
+
+    if (thumbnailFile) {
+        const newThumbnail = await uploadOnCloudinary(thumbnailFile.path, "image", "thumbnails");
+
+        if (!newThumbnail?.secure_url) {
+            throw new ApiError(500, "Thumbnail upload failed");
+        }
+
+        if (existingVideo.thumbnailPublicId) {
+            await deleteFromCloudinary(existingVideo.thumbnailPublicId, "image");
+        }
+
+        updateFields.thumbnail = newThumbnail.secure_url;
+        updateFields.thumbnailPublicId = newThumbnail.public_id;
+    }
+
+    const updatedVideo = await Video.findByIdAndUpdate(
+        videoId,
+        { $set: updateFields },
+        { new: true }
+    ).select("-videoPublicId -thumbnailPublicId");
+
+    return res
+        .status(200)
+        .json(new ApiResponse(true, updatedVideo, "Video updated successfully"));
+});
+
+const deleteVideo = asyncHandler(async (req, res) => {
+    const { videoId } = req.params;
+
+    if (!isValidObjectId(videoId)) {
+        throw new ApiError(400, "Invalid video ID");
+    }
+
+    const video = await Video.findById(videoId);
+
+    if (!video) {
+        throw new ApiError(404, "Video not found");
+    }
+
+    if (video.owner.toString() !== req.user._id.toString()) {
+        throw new ApiError(403, "You are not authorized to delete this video");
+    }
+
+    if (video.videoPublicId) {
+        await deleteFromCloudinary(video.videoPublicId, "video");
+    }
+
+    if (video.thumbnailPublicId) {
+        await deleteFromCloudinary(video.thumbnailPublicId, "image");
+    }
+
+    await video.deleteOne();
+
+    return res
+        .status(200)
+        .json(new ApiResponse(true, null, "Video deleted successfully"));
+});
+
+export { publishAVideo, getVideoById, updateVideo, deleteVideo };

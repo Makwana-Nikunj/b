@@ -16,15 +16,21 @@ function fileFilter(req, file, cb) {
     const videoExt = [".mp4", ".mov", ".mkv", ".webm"];
     const imageExt = [".jpg", ".jpeg", ".png", ".webp"];
 
-    if (file.fieldname === "videoFile" && !videoExt.includes(ext)) {
-        return cb(new Error("Invalid video file format"), false);
+    // Check video file
+    if (file.fieldname === "videoFile") {
+        if (!videoExt.includes(ext)) {
+            return cb(new Error("Invalid video file format"), false);
+        }
+        return cb(null, true);
     }
 
-    if (file.fieldname === "thumbnailImage" && !imageExt.includes(ext)) {
-        return cb(new Error("Invalid image file format"), false);
+    // For any other field, check if it's a valid image
+    if (imageExt.includes(ext)) {
+        return cb(null, true);
     }
 
-    cb(null, true);
+    // Reject if not a valid image or video
+    return cb(new Error(`Invalid file format for field: ${file.fieldname}`), false);
 }
 
 export const upload = multer({
