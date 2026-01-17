@@ -4,6 +4,7 @@ import { User } from "../models/user.model.js"
 import { ApiError } from "../utils/ApiError.js"
 import { ApiResponse } from "../utils/ApiResponse.js"
 import { asyncHandler } from "../utils/asyncHandler.js"
+import { Video } from "../models/video.model.js"
 
 
 const createPlaylist = asyncHandler(async (req, res) => {
@@ -63,11 +64,119 @@ const getUserPlaylists = asyncHandler(async (req, res) => {
     );
 });
 
+const getPlaylistById = asyncHandler(async (req, res) => {
+    const { playlistId } = req.params;
 
+    if (!isValidObjectId(playlistId)) {
+        throw new ApiError(400, "Invalid playlist ID");
+    }
+
+    const playlist = await Playlist.aggregate([
+        {
+            $match: {
+                _id: new mongoose.Types.ObjectId(playlistId)
+            }
+        },
+
+        // Join owner
+        {
+            $lookup: {
+                from: "users",
+                localField: "owner",
+                foreignField: "_id",
+                as: "owner",
+                pipeline: [
+                    { $project: { username: 1, email: 1 } }
+                ]
+            }
+        },
+        { $unwind: "$owner" },
+
+        // Join videos
+        {
+            $lookup: {
+                from: "videos",
+                localField: "videos",
+                foreignField: "_id",
+                as: "videos",
+                pipeline: [
+                    {
+                        $project: {
+                            title: 1,
+                            thumbnail: 1,
+                            duration: 1,
+                            views: 1,
+                            owner: 1,
+                            createdAt: 1
+                        }
+                    }
+                ]
+            }
+        },
+
+        {
+            $project: {
+                name: 1,
+                description: 1,
+                owner: 1,
+                videos: 1,
+                createdAt: 1,
+                updatedAt: 1
+            }
+        }
+    ]);
+
+    if (!playlist.length) {
+        throw new ApiError(404, "Playlist not found");
+    }
+
+    return res.status(200).json(
+        new ApiResponse(true, playlist[0], "Playlist retrieved successfully")
+    );
+});
+
+const addVideoToPlaylist = asyncHandler(async (req, res) => {
+    const { playlistId, videoId } = req.params;
+
+    if (!isValidObjectId(playlistId)) {
+        throw new ApiError(400, "Invalid playlist ID");
+    }
+
+    if (!isValidObjectId(videoId)) {
+        throw new ApiError(400, "Invalid video ID");
+    }
+
+    const playlist = await Playlist.findById(playlistId).select("owner videos");
+    if (!playlist) {
+        throw new ApiError(404, "Playlist not found");
+    }
+
+    // 🔐 Ownership check
+    if (playlist.owner.toString() !== req.user._id.toString()) {
+        throw new ApiError(403, "You are not allowed to modify this playlist");
+    }
+
+    const videoExists = await Video.findById(videoId).select("_id");
+    if (!videoExists) {
+        throw new ApiError(404, "Video not found");
+    }
+
+    const updatedPlaylist = await Playlist.findByIdAndUpdate(
+        playlistId,
+        { $addToSet: { videos: videoId } }, // prevents duplicates
+        { new: true }
+    );
+
+    return res.status(200).json(
+        new ApiResponse(true, updatedPlaylist, "Video added to playlist successfully")
+    );
+});
 
 export {
     createPlaylist,
-    getUserPlaylists
+    getUserPlaylists,
+    getPlaylistById,
+    addVideoToPlaylist
 };
 
 
