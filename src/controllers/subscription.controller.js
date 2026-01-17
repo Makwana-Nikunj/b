@@ -56,36 +56,41 @@ const getUserChannelSubscribers = asyncHandler(async (req, res) => {
         throw new ApiError(404, "Subscriber not found");
     }
 
-    const subscribers = await Subscription.aggregate([
-        {
-            $match: {
-                channel: new mongoose.Types.ObjectId(subscriberId)
+    let subscribers;
+    try {
+        subscribers = await Subscription.aggregate([
+            {
+                $match: {
+                    channel: new mongoose.Types.ObjectId(subscriberId)
+                }
+            },
+
+            {
+                $lookup: {
+                    from: "users",
+                    localField: "subscriber",
+                    foreignField: "_id",
+                    as: "subscriber",
+                    pipeline: [
+                        { $project: { username: 1, avatar: 1 } }
+                    ]
+                }
+            },
+
+            { $unwind: "$subscriber" },
+
+            { $sort: { createdAt: -1 } },
+
+            {
+                $project: {
+                    subscriber: 1,
+                    _id: 0
+                }
             }
-        },
-
-        {
-            $lookup: {
-                from: "users",
-                localField: "subscriber",
-                foreignField: "_id",
-                as: "subscriber",
-                pipeline: [
-                    { $project: { username: 1, avatar: 1 } }
-                ]
-            }
-        },
-
-        { $unwind: "$subscriber" },
-
-        { $sort: { createdAt: -1 } },
-
-        {
-            $project: {
-                subscriber: 1,
-                _id: 0
-            }
-        }
-    ]);
+        ]);
+    } catch (error) {
+        throw new ApiError(500, error?.message || "Error fetching subscribers")
+    }
 
     const formatted = subscribers.map(s => s.subscriber);
 
@@ -112,41 +117,46 @@ const getSubscribedChannels = asyncHandler(async (req, res) => {
     const pageNum = parseInt(page);
     const limitNum = parseInt(limit);
 
-    const subscriptions = await Subscription.aggregate([
-        {
-            $match: {
-                subscriber: new mongoose.Types.ObjectId(channelId)
+    let subscriptions;
+    try {
+        subscriptions = await Subscription.aggregate([
+            {
+                $match: {
+                    subscriber: new mongoose.Types.ObjectId(channelId)
+                }
+            },
+
+            {
+                $lookup: {
+                    from: "users",
+                    localField: "channel",
+                    foreignField: "_id",
+                    as: "channel",
+                    pipeline: [
+                        { $project: { username: 1, avatar: 1 } }
+                    ]
+                }
+            },
+
+            { $unwind: "$channel" },
+
+            { $sort: { createdAt: -1 } },
+
+            {
+                $facet: {
+                    data: [
+                        { $skip: (pageNum - 1) * limitNum },
+                        { $limit: limitNum }
+                    ],
+                    totalCount: [
+                        { $count: "count" }
+                    ]
+                }
             }
-        },
-
-        {
-            $lookup: {
-                from: "users",
-                localField: "channel",
-                foreignField: "_id",
-                as: "channel",
-                pipeline: [
-                    { $project: { username: 1, avatar: 1 } }
-                ]
-            }
-        },
-
-        { $unwind: "$channel" },
-
-        { $sort: { createdAt: -1 } },
-
-        {
-            $facet: {
-                data: [
-                    { $skip: (pageNum - 1) * limitNum },
-                    { $limit: limitNum }
-                ],
-                totalCount: [
-                    { $count: "count" }
-                ]
-            }
-        }
-    ]);
+        ]);
+    } catch (error) {
+        throw new ApiError(500, error?.message || "Error fetching subscribed channels")
+    }
 
     const channels = subscriptions[0].data.map(s => s.channel);
     const totalCount = subscriptions[0].totalCount[0]?.count || 0;

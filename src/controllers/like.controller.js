@@ -117,48 +117,53 @@ const getLikedVideos = asyncHandler(async (req, res) => {
     const pageNum = parseInt(page);
     const limitNum = parseInt(limit);
 
-    const result = await Like.aggregate([
-        {
-            $match: {
-                likedBy: new mongoose.Types.ObjectId(userId),
-                video: { $exists: true }
-            }
-        },
-        { $sort: { createdAt: -1 } },
+    let result;
+    try {
+        result = await Like.aggregate([
+            {
+                $match: {
+                    likedBy: new mongoose.Types.ObjectId(userId),
+                    video: { $exists: true }
+                }
+            },
+            { $sort: { createdAt: -1 } },
 
-        {
-            $lookup: {
-                from: "videos",
-                localField: "video",
-                foreignField: "_id",
-                as: "video",
-                pipeline: [
-                    {
-                        $project: {
-                            title: 1,
-                            thumbnail: 1,
-                            duration: 1,
-                            views: 1,
-                            owner: 1,
-                            createdAt: 1
+            {
+                $lookup: {
+                    from: "videos",
+                    localField: "video",
+                    foreignField: "_id",
+                    as: "video",
+                    pipeline: [
+                        {
+                            $project: {
+                                title: 1,
+                                thumbnail: 1,
+                                duration: 1,
+                                views: 1,
+                                owner: 1,
+                                createdAt: 1
+                            }
                         }
-                    }
-                ]
-            }
-        },
+                    ]
+                }
+            },
 
-        { $unwind: "$video" },
+            { $unwind: "$video" },
 
-        {
-            $facet: {
-                data: [
-                    { $skip: (pageNum - 1) * limitNum },
-                    { $limit: limitNum }
-                ],
-                totalCount: [{ $count: "count" }]
+            {
+                $facet: {
+                    data: [
+                        { $skip: (pageNum - 1) * limitNum },
+                        { $limit: limitNum }
+                    ],
+                    totalCount: [{ $count: "count" }]
+                }
             }
-        }
-    ]);
+        ]);
+    } catch (error) {
+        throw new ApiError(500, error?.message || "Error fetching liked videos")
+    }
 
     const videos = result[0].data.map(v => v.video);
     const totalCount = result[0].totalCount[0]?.count || 0;

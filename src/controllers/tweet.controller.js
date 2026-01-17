@@ -105,50 +105,55 @@ const getUserTweets = asyncHandler(async (req, res) => {
     const pageNum = parseInt(page);
     const limitNum = parseInt(limit);
 
-    const result = await Tweet.aggregate([
-        {
-            $match: {
-                owner: new mongoose.Types.ObjectId(userId)
+    let result;
+    try {
+        result = await Tweet.aggregate([
+            {
+                $match: {
+                    owner: new mongoose.Types.ObjectId(userId)
+                }
+            },
+
+            { $sort: { createdAt: -1 } },
+
+            {
+                $lookup: {
+                    from: "users",
+                    localField: "owner",
+                    foreignField: "_id",
+                    as: "owner",
+                    pipeline: [
+                        { $project: { username: 1, name: 1, avatar: 1 } }
+                    ]
+                }
+            },
+
+            { $unwind: "$owner" },
+
+            {
+                $project: {
+                    content: 1,
+                    owner: 1,
+                    createdAt: 1,
+                    updatedAt: 1
+                }
+            },
+
+            {
+                $facet: {
+                    data: [
+                        { $skip: (pageNum - 1) * limitNum },
+                        { $limit: limitNum }
+                    ],
+                    totalCount: [
+                        { $count: "count" }
+                    ]
+                }
             }
-        },
-
-        { $sort: { createdAt: -1 } },
-
-        {
-            $lookup: {
-                from: "users",
-                localField: "owner",
-                foreignField: "_id",
-                as: "owner",
-                pipeline: [
-                    { $project: { username: 1, name: 1, avatar: 1 } }
-                ]
-            }
-        },
-
-        { $unwind: "$owner" },
-
-        {
-            $project: {
-                content: 1,
-                owner: 1,
-                createdAt: 1,
-                updatedAt: 1
-            }
-        },
-
-        {
-            $facet: {
-                data: [
-                    { $skip: (pageNum - 1) * limitNum },
-                    { $limit: limitNum }
-                ],
-                totalCount: [
-                    { $count: "count" }
-                ]
-            }
-        }
-    ]);
+        ]);
+    } catch (error) {
+        throw new ApiError(500, error?.message || "Error fetching tweets")
+    }
 
     const tweets = result[0].data;
     const totalTweets = result[0].totalCount[0]?.count || 0;

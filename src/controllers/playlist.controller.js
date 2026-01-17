@@ -71,60 +71,65 @@ const getPlaylistById = asyncHandler(async (req, res) => {
         throw new ApiError(400, "Invalid playlist ID");
     }
 
-    const playlist = await Playlist.aggregate([
-        {
-            $match: {
-                _id: new mongoose.Types.ObjectId(playlistId)
-            }
-        },
+    let playlist;
+    try {
+        playlist = await Playlist.aggregate([
+            {
+                $match: {
+                    _id: new mongoose.Types.ObjectId(playlistId)
+                }
+            },
 
-        // Join owner
-        {
-            $lookup: {
-                from: "users",
-                localField: "owner",
-                foreignField: "_id",
-                as: "owner",
-                pipeline: [
-                    { $project: { username: 1, email: 1 } }
-                ]
-            }
-        },
-        { $unwind: "$owner" },
+            // Join owner
+            {
+                $lookup: {
+                    from: "users",
+                    localField: "owner",
+                    foreignField: "_id",
+                    as: "owner",
+                    pipeline: [
+                        { $project: { username: 1, email: 1 } }
+                    ]
+                }
+            },
+            { $unwind: "$owner" },
 
-        // Join videos
-        {
-            $lookup: {
-                from: "videos",
-                localField: "videos",
-                foreignField: "_id",
-                as: "videos",
-                pipeline: [
-                    {
-                        $project: {
-                            title: 1,
-                            thumbnail: 1,
-                            duration: 1,
-                            views: 1,
-                            owner: 1,
-                            createdAt: 1
+            // Join videos
+            {
+                $lookup: {
+                    from: "videos",
+                    localField: "videos",
+                    foreignField: "_id",
+                    as: "videos",
+                    pipeline: [
+                        {
+                            $project: {
+                                title: 1,
+                                thumbnail: 1,
+                                duration: 1,
+                                views: 1,
+                                owner: 1,
+                                createdAt: 1
+                            }
                         }
-                    }
-                ]
-            }
-        },
+                    ]
+                }
+            },
 
-        {
-            $project: {
-                name: 1,
-                description: 1,
-                owner: 1,
-                videos: 1,
-                createdAt: 1,
-                updatedAt: 1
+            {
+                $project: {
+                    name: 1,
+                    description: 1,
+                    owner: 1,
+                    videos: 1,
+                    createdAt: 1,
+                    updatedAt: 1
+                }
             }
-        }
-    ]);
+        ]);
+    } catch (error) {
+        throw new ApiError(500, error?.message || "Error fetching playlist")
+    }
 
     if (!playlist.length) {
         throw new ApiError(404, "Playlist not found");

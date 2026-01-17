@@ -12,48 +12,53 @@ const getChannelStats = asyncHandler(async (req, res) => {
 
     const channelObjectId = new mongoose.Types.ObjectId(channelId);
 
-    // Aggregate video-based stats
-    const videoStats = await Video.aggregate([
-        {
-            $match: { owner: channelObjectId }
-        },
-        {
-            $group: {
-                _id: null,
-                totalVideos: { $sum: 1 },
-                totalViews: { $sum: "$views" }
+    let videoStats, totalSubscribers, totalLikes;
+    try {
+        // Aggregate video-based stats
+        videoStats = await Video.aggregate([
+            {
+                $match: { owner: channelObjectId }
+            },
+            {
+                $group: {
+                    _id: null,
+                    totalVideos: { $sum: 1 },
+                    totalViews: { $sum: "$views" }
+                }
             }
-        }
-    ]);
+        ]);
 
-    const totalVideos = videoStats[0]?.totalVideos || 0;
-    const totalViews = videoStats[0]?.totalViews || 0;
+        const totalVideos = videoStats[0]?.totalVideos || 0;
+        const totalViews = videoStats[0]?.totalViews || 0;
 
-    // Count subscribers
-    const totalSubscribers = await Subscription.countDocuments({
-        channel: channelId
-    });
+        // Count subscribers
+        totalSubscribers = await Subscription.countDocuments({
+            channel: channelId
+        });
 
-    // Count likes on channel videos
-    const totalLikes = await Like.aggregate([
-        {
-            $lookup: {
-                from: "videos",
-                localField: "video",
-                foreignField: "_id",
-                as: "video"
+        // Count likes on channel videos
+        totalLikes = await Like.aggregate([
+            {
+                $lookup: {
+                    from: "videos",
+                    localField: "video",
+                    foreignField: "_id",
+                    as: "video"
+                }
+            },
+            { $unwind: "$video" },
+            {
+                $match: {
+                    "video.owner": channelObjectId
+                }
+            },
+            {
+                $count: "totalLikes"
             }
-        },
-        { $unwind: "$video" },
-        {
-            $match: {
-                "video.owner": channelObjectId
-            }
-        },
-        {
-            $count: "totalLikes"
-        }
-    ]);
+        ]);
+    } catch (error) {
+        throw new ApiError(500, error?.message || "Error fetching channel stats")
+    }
 
     return res.status(200).json(
         new ApiResponse(
@@ -73,31 +78,36 @@ const getChannelStats = asyncHandler(async (req, res) => {
 const getChannelVideos = asyncHandler(async (req, res) => {
     const channelId = req.user._id;
 
-    const videos = await Video.aggregate([
-        {
-            $match: {
-                owner: new mongoose.Types.ObjectId(channelId)
-            }
-        },
+    let videos;
+    try {
+        videos = await Video.aggregate([
+            {
+                $match: {
+                    owner: new mongoose.Types.ObjectId(channelId)
+                }
+            },
 
-        {
-            $sort: { createdAt: -1 }
-        },
+            {
+                $sort: { createdAt: -1 }
+            },
 
-        {
-            $project: {
-                title: 1,
-                description: 1,
-                videoFile: 1,
-                thumbnail: 1,
-                duration: 1,
-                views: 1,
-                isPublished: 1,
-                createdAt: 1,
-                updatedAt: 1
+            {
+                $project: {
+                    title: 1,
+                    description: 1,
+                    videoFile: 1,
+                    thumbnail: 1,
+                    duration: 1,
+                    views: 1,
+                    isPublished: 1,
+                    createdAt: 1,
+                    updatedAt: 1
+                }
             }
-        }
-    ]);
+        ]);
+    } catch (error) {
+        throw new ApiError(500, error?.message || "Error fetching channel videos")
+    }
 
     return res.status(200).json(
         new ApiResponse(true, videos, "Channel videos fetched successfully")

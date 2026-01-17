@@ -76,33 +76,38 @@ const updateComment = asyncHandler(async (req, res) => {
         { $set: { content: trimmedContent } }
     );
 
-    const updatedComment = await Comment.aggregate([
-        {
-            $match: {
-                _id: new mongoose.Types.ObjectId(commentId)
+    let updatedComment;
+    try {
+        updatedComment = await Comment.aggregate([
+            {
+                $match: {
+                    _id: new mongoose.Types.ObjectId(commentId)
+                }
+            },
+            {
+                $lookup: {
+                    from: "users",
+                    localField: "owner",
+                    foreignField: "_id",
+                    as: "owner",
+                    pipeline: [
+                        { $project: { username: 1, avatar: 1 } }
+                    ]
+                }
+            },
+            { $unwind: "$owner" },
+            {
+                $project: {
+                    content: 1,
+                    owner: 1,
+                    createdAt: 1,
+                    updatedAt: 1
+                }
             }
-        },
-        {
-            $lookup: {
-                from: "users",
-                localField: "owner",
-                foreignField: "_id",
-                as: "owner",
-                pipeline: [
-                    { $project: { username: 1, avatar: 1 } }
-                ]
-            }
-        },
-        { $unwind: "$owner" },
-        {
-            $project: {
-                content: 1,
-                owner: 1,
-                createdAt: 1,
-                updatedAt: 1
-            }
-        }
-    ]);
+        ]);
+    } catch (error) {
+        throw new ApiError(500, error?.message || "Error updating comment")
+    }
 
     return res.status(200).json(
         new ApiResponse(true, updatedComment[0], "Comment updated successfully")
@@ -153,48 +158,53 @@ const getVideoComments = asyncHandler(async (req, res) => {
         throw new ApiError(404, "Video not found");
     }
 
-    const results = await Comment.aggregate([
-        {
-            $match: {
-                video: new mongoose.Types.ObjectId(videoId)
-            }
-        },
-        { $sort: { createdAt: -1 } },
+    let results;
+    try {
+        results = await Comment.aggregate([
+            {
+                $match: {
+                    video: new mongoose.Types.ObjectId(videoId)
+                }
+            },
+            { $sort: { createdAt: -1 } },
 
-        {
-            $lookup: {
-                from: "users",
-                localField: "owner",
-                foreignField: "_id",
-                as: "owner",
-                pipeline: [
-                    { $project: { username: 1, avatar: 1 } }
-                ]
-            }
-        },
-        { $unwind: "$owner" },
+            {
+                $lookup: {
+                    from: "users",
+                    localField: "owner",
+                    foreignField: "_id",
+                    as: "owner",
+                    pipeline: [
+                        { $project: { username: 1, avatar: 1 } }
+                    ]
+                }
+            },
+            { $unwind: "$owner" },
 
-        {
-            $project: {
-                content: 1,
-                owner: 1,
-                createdAt: 1,
-                updatedAt: 1
-            }
-        },
+            {
+                $project: {
+                    content: 1,
+                    owner: 1,
+                    createdAt: 1,
+                    updatedAt: 1
+                }
+            },
 
-        {
-            $facet: {
-                data: [
-                    { $skip: (pageNum - 1) * limitNum },
-                    { $limit: limitNum }
-                ],
-                totalCount: [
-                    { $count: "count" }
-                ]
+            {
+                $facet: {
+                    data: [
+                        { $skip: (pageNum - 1) * limitNum },
+                        { $limit: limitNum }
+                    ],
+                    totalCount: [
+                        { $count: "count" }
+                    ]
+                }
             }
-        }
-    ]);
+        ]);
+    } catch (error) {
+        throw new ApiError(500, error?.message || "Error fetching comments")
+    }
 
     const comments = results[0].data;
     const totalComments = results[0].totalCount[0]?.count || 0;

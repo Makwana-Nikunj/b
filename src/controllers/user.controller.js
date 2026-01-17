@@ -7,18 +7,22 @@ import jwt from "jsonwebtoken";
 import mongoose from "mongoose";
 
 const generateAccessAndRefreshToken = async (userId) => {
-    const user = await User.findById(userId)
-    if (!user) {
-        throw new ApiError(404, "User not found")
+    try {
+        const user = await User.findById(userId)
+        if (!user) {
+            throw new ApiError(404, "User not found")
+        }
+
+        const accessToken = user.generateAccessToken()
+        const refreshToken = user.generateRefreshToken()
+
+        user.refreshToken = refreshToken
+        await user.save({ validateBeforeSave: false })
+
+        return { accessToken, refreshToken }
+    } catch (error) {
+        throw new ApiError(500, error?.message || "Something went wrong while generating tokens")
     }
-
-    const accessToken = user.generateAccessToken()
-    const refreshToken = user.generateRefreshToken()
-
-    user.refreshToken = refreshToken
-    await user.save({ validateBeforeSave: false })
-
-    return { accessToken, refreshToken }
 }
 
 const registerUser = asyncHandler(async (req, res) => {
@@ -54,10 +58,13 @@ const registerUser = asyncHandler(async (req, res) => {
         throw new ApiError(400, "Avatar file is required")
     }
 
-
-    const avatar = await uploadOnCloudinary(avatarLocalPath)
-    const coverImage = await uploadOnCloudinary(coverImageLocalPath)
-
+    let avatar, coverImage;
+    try {
+        avatar = await uploadOnCloudinary(avatarLocalPath)
+        coverImage = await uploadOnCloudinary(coverImageLocalPath)
+    } catch (error) {
+        throw new ApiError(500, error?.message || "Error uploading files to cloudinary")
+    }
 
     if (!avatar) {
         throw new ApiError(400, "Avatar file is required")
@@ -272,13 +279,22 @@ const updateUserAvatar = asyncHandler(async (req, res) => {
     if (!avatarLocalPath) {
         throw new ApiError(400, "Avatar file is required")
     }
-    const avatar = await uploadOnCloudinary(avatarLocalPath)
 
-    if (!avatar) {
-        throw new ApiError(500, "Something went wrong while uploading avatar")
+    let avatar;
+    try {
+        avatar = await uploadOnCloudinary(avatarLocalPath)
+
+        if (!avatar) {
+            throw new ApiError(500, "Something went wrong while uploading avatar")
+        }
+
+        // Delete old avatar from cloudinary
+        if (req.user?.avatarPublicId) {
+            await deleteFromCloudinary(req.user.avatarPublicId, "image");
+        }
+    } catch (error) {
+        throw new ApiError(500, error?.message || "Error updating avatar")
     }
-
-    const deleteResponse = await deleteFromCloudinary(req.user?.avatarPublicId, "image");
 
     const user = await User.findByIdAndUpdate(
         req.user?._id,
@@ -302,19 +318,29 @@ const updateUserCoverImage = asyncHandler(async (req, res) => {
     if (!coverImageLocalPath) {
         throw new ApiError(400, "Cover image file is required")
     }
-    const coverImage = await uploadOnCloudinary(coverImageLocalPath)
 
-    if (!coverImage) {
-        throw new ApiError(500, "Something went wrong while uploading cover image")
+    let coverImage;
+    try {
+        coverImage = await uploadOnCloudinary(coverImageLocalPath)
+
+        if (!coverImage) {
+            throw new ApiError(500, "Something went wrong while uploading cover image")
+        }
+
+        // Delete old cover image from cloudinary
+        if (req.user?.coverImagePublicId) {
+            await deleteFromCloudinary(req.user.coverImagePublicId, "image");
+        }
+    } catch (error) {
+        throw new ApiError(500, error?.message || "Error updating cover image")
     }
-
-    const deleteResponse = await deleteFromCloudinary(req.user?.coverImagePublicId, "image");
 
     const user = await User.findByIdAndUpdate(
         req.user?._id,
         {
             $set: {
-                coverImage: coverImage.url
+                coverImage: coverImage.secure_url,
+                coverImagePublicId: coverImage.public_id
             }
         },
         { new: true }
@@ -331,58 +357,63 @@ const getUserChannelProfile = asyncHandler(async (req, res) => {
         throw new ApiError(400, "username is missing")
     }
 
-    const channel = await User.aggregate([
-        {
-            $match: {
-                username: username?.toLowerCase()
-            }
-        },
-        {
-            $lookup: {
-                from: "subscriptions",
-                localField: "_id",
-                foreignField: "channel",
-                as: "subscribers"
-            }
-        },
-        {
-            $lookup: {
-                from: "subscriptions",
-                localField: "_id",
-                foreignField: "subscriber",
-                as: "subscribedTo"
-            }
-        },
-        {
-            $addFields: {
-                subscribersCount: {
-                    $size: "$subscribers"
-                },
-                channelsSubscribedToCount: {
-                    $size: "$subscribedTo"
-                },
-                isSubscribed: {
-                    $cond: {
-                        if: { $in: [req.user?._id, "$subscribers.subscriber"] },
-                        then: true,
-                        else: false
+    let channel;
+    try {
+        channel = await User.aggregate([
+            {
+                $match: {
+                    username: username?.toLowerCase()
+                }
+            },
+            {
+                $lookup: {
+                    from: "subscriptions",
+                    localField: "_id",
+                    foreignField: "channel",
+                    as: "subscribers"
+                }
+            },
+            {
+                $lookup: {
+                    from: "subscriptions",
+                    localField: "_id",
+                    foreignField: "subscriber",
+                    as: "subscribedTo"
+                }
+            },
+            {
+                $addFields: {
+                    subscribersCount: {
+                        $size: "$subscribers"
+                    },
+                    channelsSubscribedToCount: {
+                        $size: "$subscribedTo"
+                    },
+                    isSubscribed: {
+                        $cond: {
+                            if: { $in: [req.user?._id, "$subscribers.subscriber"] },
+                            then: true,
+                            else: false
+                        }
                     }
                 }
+            },
+            {
+                $project: {
+                    fullName: 1,
+                    username: 1,
+                    subscribersCount: 1,
+                    channelsSubscribedToCount: 1,
+                    isSubscribed: 1,
+                    avatar: 1,
+                    coverImage: 1,
+                    email: 1
+                }
             }
-        },
-        {
-            $project: {
-                fullName: 1,
-                username: 1,
-                subscribersCount: 1,
-                channelsSubscribedToCount: 1,
-                isSubscribed: 1,
-                avatar: 1,
-                coverImage: 1,
-                email: 1
-            }
-        }
-    ])
+        ]);
+    } catch (error) {
+        throw new ApiError(500, error?.message || "Error fetching channel profile")
+    }
 
     if (!channel?.length) {
         throw new ApiError(404, "channel does not exists")
@@ -396,47 +427,52 @@ const getUserChannelProfile = asyncHandler(async (req, res) => {
 })
 
 const getWatchHistory = asyncHandler(async (req, res) => {
-    const user = await User.aggregate([
-        {
-            $match: {
-                _id: new mongoose.Types.ObjectId(req.user._id)
-            }
-        },
-        {
-            $lookup: {
-                from: "videos",
-                localField: "watchHistory",
-                foreignField: "_id",
-                as: "watchHistory",
-                pipeline: [
-                    {
-                        $lookup: {
-                            from: "users",
-                            localField: "owner",
-                            foreignField: "_id",
-                            as: "owner",
-                            pipeline: [
-                                {
-                                    $project: {
-                                        fullName: 1,
-                                        username: 1,
-                                        avatar: 1
+    let user;
+    try {
+        user = await User.aggregate([
+            {
+                $match: {
+                    _id: new mongoose.Types.ObjectId(req.user._id)
+                }
+            },
+            {
+                $lookup: {
+                    from: "videos",
+                    localField: "watchHistory",
+                    foreignField: "_id",
+                    as: "watchHistory",
+                    pipeline: [
+                        {
+                            $lookup: {
+                                from: "users",
+                                localField: "owner",
+                                foreignField: "_id",
+                                as: "owner",
+                                pipeline: [
+                                    {
+                                        $project: {
+                                            fullName: 1,
+                                            username: 1,
+                                            avatar: 1
+                                        }
                                     }
+                                ]
+                            }
+                        },
+                        {
+                            $addFields: {
+                                owner: {
+                                    $first: "$owner"
                                 }
-                            ]
-                        }
-                    },
-                    {
-                        $addFields: {
-                            owner: {
-                                $first: "$owner"
                             }
                         }
-                    }
-                ]
+                    ]
+                }
             }
-        }
-    ])
+        ]);
+    } catch (error) {
+        throw new ApiError(500, error?.message || "Error fetching watch history")
+    }
 
     return res
         .status(200)
