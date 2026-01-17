@@ -133,9 +133,93 @@ const deleteComment = asyncHandler(async (req, res) => {
         );
 });
 
+const getVideoComments = asyncHandler(async (req, res) => {
+    const { videoId } = req.params;
+    const { page = 1, limit = 10 } = req.query;
+
+    const pageNum = parseInt(page);
+    const limitNum = parseInt(limit);
+
+    if (!isValidObjectId(videoId)) {
+        throw new ApiError(400, "Invalid video ID");
+    }
+
+    if (pageNum < 1 || limitNum < 1) {
+        throw new ApiError(400, "Page and limit must be positive numbers");
+    }
+
+    const videoExists = await Video.findById(videoId).select("_id");
+    if (!videoExists) {
+        throw new ApiError(404, "Video not found");
+    }
+
+    const results = await Comment.aggregate([
+        {
+            $match: {
+                video: new mongoose.Types.ObjectId(videoId)
+            }
+        },
+        { $sort: { createdAt: -1 } },
+
+        {
+            $lookup: {
+                from: "users",
+                localField: "owner",
+                foreignField: "_id",
+                as: "owner",
+                pipeline: [
+                    { $project: { username: 1, avatar: 1 } }
+                ]
+            }
+        },
+        { $unwind: "$owner" },
+
+        {
+            $project: {
+                content: 1,
+                owner: 1,
+                createdAt: 1,
+                updatedAt: 1
+            }
+        },
+
+        {
+            $facet: {
+                data: [
+                    { $skip: (pageNum - 1) * limitNum },
+                    { $limit: limitNum }
+                ],
+                totalCount: [
+                    { $count: "count" }
+                ]
+            }
+        }
+    ]);
+
+    const comments = results[0].data;
+    const totalComments = results[0].totalCount[0]?.count || 0;
+
+    return res.status(200).json(
+        new ApiResponse(
+            true,
+            {
+                comments,
+                pagination: {
+                    totalComments,
+                    page: pageNum,
+                    limit: limitNum,
+                    totalPages: Math.ceil(totalComments / limitNum)
+                }
+            },
+            "Comments fetched successfully"
+        )
+    );
+});
+
+
 export {
     addComment,
     updateComment,
-    deleteComment
-
+    deleteComment,
+    getVideoComments
 };
