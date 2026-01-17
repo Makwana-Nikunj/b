@@ -226,6 +226,56 @@ const deletePlaylist = asyncHandler(async (req, res) => {
     );
 });
 
+const updatePlaylist = asyncHandler(async (req, res) => {
+    const { playlistId } = req.params;
+    const { name, description } = req.body;
+
+    if (!isValidObjectId(playlistId)) {
+        throw new ApiError(400, "Invalid playlist ID");
+    }
+
+    const playlist = await Playlist.findById(playlistId).select("owner");
+    if (!playlist) {
+        throw new ApiError(404, "Playlist not found");
+    }
+
+    if (playlist.owner.toString() !== req.user._id.toString()) {
+        throw new ApiError(403, "You are not allowed to update this playlist");
+    }
+
+    const updates = {};
+
+    if (name !== undefined) {
+        if (name.trim() === "") {
+            throw new ApiError(400, "Playlist name cannot be empty");
+        }
+        if (name.trim().length > 100) {
+            throw new ApiError(400, "Playlist name must be under 100 characters");
+        }
+        updates.name = name.trim();
+    }
+
+    if (description !== undefined) {
+        if (description.trim().length > 500) {
+            throw new ApiError(400, "Playlist description must be under 500 characters");
+        }
+        updates.description = description.trim();
+    }
+
+    if (Object.keys(updates).length === 0) {
+        throw new ApiError(400, "No valid fields provided for update");
+    }
+
+    const updatedPlaylist = await Playlist.findByIdAndUpdate(
+        playlistId,
+        { $set: updates },
+        { new: true }
+    );
+
+    return res.status(200).json(
+        new ApiResponse(true, updatedPlaylist, "Playlist updated successfully")
+    );
+});
 
 
 export {
@@ -234,7 +284,8 @@ export {
     getPlaylistById,
     addVideoToPlaylist,
     removeVideoFromPlaylist,
-    deletePlaylist
+    deletePlaylist,
+    updatePlaylist
 };
 
 
