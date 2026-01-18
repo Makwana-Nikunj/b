@@ -1,5 +1,7 @@
 import mongoose, { isValidObjectId } from "mongoose"
 import { Video } from "../models/video.model.js"
+import { User } from "../models/user.model.js"
+import { Like } from "../models/like.model.js"
 import { ApiError } from "../utils/ApiError.js"
 import { ApiResponse } from "../utils/ApiResponse.js"
 import { asyncHandler } from "../utils/asyncHandler.js"
@@ -80,17 +82,55 @@ const getVideoById = asyncHandler(async (req, res) => {
     }
     const video = await Video
         .findById(videoId)
-        .populate("owner", "username avatar")
-        .select("-videoPublicId -thumbnailPublicId")
-        .lean();
+        .populate("owner", "username avatar fullName")
+        .select("-videoPublicId -thumbnailPublicId");
 
 
     if (!video) {
         throw new ApiError(404, "Video not found");
     }
+
+    // Increment view count
+    video.views = (video.views || 0) + 1;
+    await video.save({ validateBeforeSave: false });
+
+    // Get like count and check if user has liked
+    const likeCount = await Like.countDocuments({ video: videoId });
+    let isLiked = false;
+    if (req.user?._id) {
+        const userLike = await Like.findOne({ video: videoId, likedBy: req.user._id });
+        isLiked = !!userLike;
+    }
+
+    // Add to watch history if user is authenticated
+    if (req.user?._id) {
+        await User.findByIdAndUpdate(
+            req.user._id,
+            {
+                $pull: { watchHistory: videoId }, // Remove if already exists
+            }
+        );
+        await User.findByIdAndUpdate(
+            req.user._id,
+            {
+                $push: {
+                    watchHistory: {
+                        $each: [videoId],
+                        $position: 0 // Add to beginning
+                    }
+                }
+            }
+        );
+    }
+
+    // Convert to object and add like info
+    const videoData = video.toObject();
+    videoData.likesCount = likeCount;
+    videoData.isLiked = isLiked;
+
     return res
         .status(200)
-        .json(new ApiResponse(true, video, "Video fetched successfully"));
+        .json(new ApiResponse(true, videoData, "Video fetched successfully"));
 
 });
 

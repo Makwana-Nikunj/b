@@ -123,7 +123,7 @@ const getUserTweets = asyncHandler(async (req, res) => {
                     foreignField: "_id",
                     as: "owner",
                     pipeline: [
-                        { $project: { username: 1, name: 1, avatar: 1 } }
+                        { $project: { username: 1, fullName: 1, avatar: 1 } }
                     ]
                 }
             },
