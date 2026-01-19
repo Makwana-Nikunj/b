@@ -1,7 +1,7 @@
 {
-  "name": "backend",
+  "name": "vidplay-backend",
   "version": "1.0.0",
-  "description": "first backend project",
+  "description": "VidPlay backend server",
   "license": "ISC",
   "author": "Nikunj Makwana",
   "type": "module",

@@ -11,6 +11,14 @@ const publishAVideo = asyncHandler(async (req, res) => {
     const { title, description } = req.body;
     const { videoFile, thumbnailImage } = req.files || {};
 
+    console.log("Upload request received:", {
+        title,
+        description,
+        hasVideoFile: !!videoFile?.length,
+        hasThumbnail: !!thumbnailImage?.length,
+        files: req.files
+    });
+
     if ([title, description].some(f => !f?.trim())) {
         throw new ApiError(400, "All fields are required");
     }
@@ -30,22 +38,29 @@ const publishAVideo = asyncHandler(async (req, res) => {
     const videoPath = videoFile[0].path;
     const thumbnailPath = thumbnailImage[0].path;
 
+    console.log("File paths:", { videoPath, thumbnailPath });
+
     let videoUploadResponse, thumbnailUploadResponse;
 
     try {
+        console.log("Starting video upload to Cloudinary...");
         videoUploadResponse = await uploadOnCloudinary(videoPath, "video", "videos");
 
         if (!videoUploadResponse?.secure_url) {
             throw new ApiError(500, "Video upload failed");
         }
+        console.log("Video uploaded successfully");
 
+        console.log("Starting thumbnail upload to Cloudinary...");
         thumbnailUploadResponse = await uploadOnCloudinary(thumbnailPath, "image", "thumbnails");
 
         if (!thumbnailUploadResponse?.secure_url) {
             await deleteFromCloudinary(videoUploadResponse.public_id, "video");
             throw new ApiError(500, "Thumbnail upload failed");
         }
+        console.log("Thumbnail uploaded successfully");
     } catch (error) {
+        console.error("Cloudinary upload error:", error);
         throw new ApiError(500, error.message || "Cloudinary upload error");
     }
 
