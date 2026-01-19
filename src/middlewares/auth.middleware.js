@@ -29,4 +29,28 @@ const verifyJwt = asyncHandler(async (req, _, next) => {
 
 })
 
-export { verifyJwt }
+// Optional auth middleware - populates req.user if token exists, but doesn't reject if not
+const optionalAuth = asyncHandler(async (req, _, next) => {
+    try {
+        const token = req.cookies?.accessToken || req.header("Authorization")?.replace("Bearer ", "")
+
+        if (!token) {
+            // No token, continue without user
+            return next()
+        }
+
+        const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET)
+        const user = await User.findById(decodedToken?._id).select("-password -refreshToken")
+
+        if (user) {
+            req.user = user
+        }
+
+        next()
+    } catch (error) {
+        // Token invalid or expired, continue without user
+        next()
+    }
+})
+
+export { verifyJwt, optionalAuth }

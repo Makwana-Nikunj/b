@@ -8,14 +8,16 @@ import {
     getAllVideos
 
 } from "../controllers/video.controller.js"
-import { verifyJwt } from "../middlewares/auth.middleware.js"
+import { verifyJwt, optionalAuth } from "../middlewares/auth.middleware.js"
 import { upload } from "../middlewares/multer.middleware.js"
 
 const router = Router();
 
 // Public routes (no authentication required)
 router.route("/").get(getAllVideos);
-router.route("/:videoId").get(getVideoById);
+
+// Public route with optional auth (to track watch history if logged in)
+router.route("/:videoId").get(optionalAuth, getVideoById);
 
 // Protected routes (authentication required)
 router.use(verifyJwt);
