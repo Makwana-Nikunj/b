@@ -1,6 +1,12 @@
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js"
 import { User } from "../models/user.model.js"
+import { Video } from "../models/video.model.js"
+import { Like } from "../models/like.model.js"
+import { Comment } from "../models/comment.model.js"
+import { Tweet } from "../models/tweet.model.js"
+import { Playlist } from "../models/playlist.model.js"
+import { Subscription } from "../models/subscription.model.js"
 import { uploadOnCloudinary, deleteFromCloudinary } from "../utils/cloudinary.js"
 import { ApiResponse } from "../utils/ApiResponse.js";
 import jwt from "jsonwebtoken";
@@ -485,6 +491,92 @@ const getWatchHistory = asyncHandler(async (req, res) => {
         )
 })
 
+const deleteUser = asyncHandler(async (req, res) => {
+    const userId = req.user._id;
+
+    const user = await User.findById(userId);
+    if (!user) {
+        throw new ApiError(404, "User not found");
+    }
+
+    // 1. Delete user's avatar from Cloudinary
+    if (user.avatarPublicId) {
+        try {
+            await deleteFromCloudinary(user.avatarPublicId, "image");
+        } catch (error) {
+            console.error("Error deleting avatar:", error.message);
+        }
+    }
+
+    // 2. Delete user's cover image from Cloudinary
+    if (user.coverImagePublicId) {
+        try {
+            await deleteFromCloudinary(user.coverImagePublicId, "image");
+        } catch (error) {
+            console.error("Error deleting cover image:", error.message);
+        }
+    }
+
+    // 3. Delete all user's videos (including files from Cloudinary)
+    const userVideos = await Video.find({ owner: userId });
+    for (const video of userVideos) {
+        try {
+            if (video.videoPublicId) {
+                await deleteFromCloudinary(video.videoPublicId, "video");
+            }
+            if (video.thumbnailPublicId) {
+                await deleteFromCloudinary(video.thumbnailPublicId, "image");
+            }
+        } catch (error) {
+            console.error("Error deleting video files:", error.message);
+        }
+
+        // Delete likes on this video
+        await Like.deleteMany({ video: video._id });
+        // Delete comments on this video
+        await Comment.deleteMany({ video: video._id });
+    }
+    await Video.deleteMany({ owner: userId });
+
+    // 4. Delete all likes by this user
+    await Like.deleteMany({ likedBy: userId });
+
+    // 5. Delete all comments by this user
+    await Comment.deleteMany({ owner: userId });
+
+    // 6. Delete all tweets by this user
+    await Tweet.deleteMany({ owner: userId });
+
+    // 7. Delete all playlists by this user
+    await Playlist.deleteMany({ owner: userId });
+
+    // 8. Delete all subscriptions (where user is subscriber or channel)
+    await Subscription.deleteMany({
+        $or: [{ subscriber: userId }, { channel: userId }]
+    });
+
+    // 9. Remove user from other users' watch history
+    await User.updateMany(
+        { watchHistory: userId },
+        { $pull: { watchHistory: userId } }
+    );
+
+    // 10. Delete the user
+    await User.findByIdAndDelete(userId);
+
+    // Clear cookies
+    const options = {
+        httpOnly: true,
+        secure: true
+    };
+
+    return res
+        .status(200)
+        .clearCookie("accessToken", options)
+        .clearCookie("refreshToken", options)
+        .json(new ApiResponse(200, null, "User account deleted successfully"));
+});
+
 
 export {
     registerUser,
@@ -497,5 +589,6 @@ export {
     updateUserAvatar,
     updateUserCoverImage,
     getUserChannelProfile,
-    getWatchHistory
+    getWatchHistory,
+    deleteUser
 }

@@ -2,6 +2,7 @@ import mongoose, { isValidObjectId } from "mongoose"
 import { Video } from "../models/video.model.js"
 import { User } from "../models/user.model.js"
 import { Like } from "../models/like.model.js"
+import { Comment } from "../models/comment.model.js"
 import { Subscription } from "../models/subscription.model.js"
 import { ApiError } from "../utils/ApiError.js"
 import { ApiResponse } from "../utils/ApiResponse.js"
@@ -250,6 +251,13 @@ const deleteVideo = asyncHandler(async (req, res) => {
         // Continue with database deletion even if Cloudinary fails
     }
 
+    // Delete all likes associated with this video
+    await Like.deleteMany({ video: videoId });
+
+    // Delete all comments associated with this video
+    await Comment.deleteMany({ video: videoId });
+
+    // Delete the video
     await video.deleteOne();
 
     return res
