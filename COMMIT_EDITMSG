@@ -1,1 +1,0 @@
-Remove MongoDB connection, authentication middleware, and all related models and routes

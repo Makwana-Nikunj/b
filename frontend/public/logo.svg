@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 50">
+  <!-- Vid text -->
+  <text x="5" y="38" font-family="Arial, sans-serif" font-size="36" font-weight="bold" fill="#FFFFFF">Vid</text>
+  
+  <!-- Play button circle -->
+  <circle cx="95" cy="25" r="20" fill="none" stroke="#E53935" stroke-width="3.5"/>
+  
+  <!-- Play triangle inside circle -->
+  <polygon points="89,15 89,35 107,25" fill="#E53935"/>
+</svg>
