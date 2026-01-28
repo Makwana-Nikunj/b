@@ -1,7 +1,7 @@
 import { useForm } from 'react-hook-form'
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate, Link } from 'react-router-dom'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { register as registerUser } from '../store/slices/authSlice'
 import { Input, Button } from '../components/ui'
 import toast from 'react-hot-toast'
@@ -14,10 +14,18 @@ function RegisterPage() {
     const [avatarPreview, setAvatarPreview] = useState(null)
     const [coverPreview, setCoverPreview] = useState(null)
 
+    useEffect(() => {
+        return () => {
+            if (avatarPreview) URL.revokeObjectURL(avatarPreview)
+            if (coverPreview) URL.revokeObjectURL(coverPreview)
+        }
+    }, [avatarPreview, coverPreview])
+
     const {
         register,
         handleSubmit,
         watch,
+        setError,
         formState: { errors },
     } = useForm({
         defaultValues: {
@@ -30,6 +38,12 @@ function RegisterPage() {
     })
 
     const password = watch('password')
+
+    const { onChange: onAvatarChange, ...avatarProps } = register('avatar', {
+        required: 'Avatar is required',
+    })
+
+    const { onChange: onCoverChange, ...coverProps } = register('coverImage')
 
     const handleAvatarChange = (e) => {
         const file = e.target.files[0]
@@ -64,7 +78,14 @@ function RegisterPage() {
             toast.success('Account created! Please sign in.')
             navigate('/login')
         } catch (error) {
-            // Error is handled by the axios interceptor
+            if (error?.errors && Array.isArray(error.errors)) {
+                error.errors.forEach((err) => {
+                    setError(err.field, {
+                        type: 'server',
+                        message: err.message,
+                    })
+                })
+            }
         }
     }
 
@@ -169,10 +190,11 @@ function RegisterPage() {
                         type="file"
                         accept="image/*"
                         className="w-full text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-gray-700 file:text-white hover:file:bg-gray-600"
-                        {...register('avatar', {
-                            required: 'Avatar is required',
-                            onChange: handleAvatarChange,
-                        })}
+                        {...avatarProps}
+                        onChange={(e) => {
+                            onAvatarChange(e)
+                            handleAvatarChange(e)
+                        }}
                     />
                     {errors.avatar && (
                         <p className="mt-1 text-sm text-red-500">{errors.avatar.message}</p>
@@ -187,9 +209,11 @@ function RegisterPage() {
                         type="file"
                         accept="image/*"
                         className="w-full text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-gray-700 file:text-white hover:file:bg-gray-600"
-                        {...register('coverImage', {
-                            onChange: handleCoverChange,
-                        })}
+                        {...coverProps}
+                        onChange={(e) => {
+                            onCoverChange(e)
+                            handleCoverChange(e)
+                        }}
                     />
                 </div>
 

@@ -23,6 +23,8 @@ function EditVideoPage() {
         formState: { errors },
     } = useForm()
 
+    const { onChange: onThumbnailChange, ...thumbnailProps } = register('thumbnail')
+
     useEffect(() => {
         const fetchVideo = async () => {
             try {
@@ -44,6 +46,15 @@ function EditVideoPage() {
 
         fetchVideo()
     }, [videoId, reset, navigate])
+
+    useEffect(() => {
+        return () => {
+            // Clean up blob URLs to prevent memory leaks
+            if (thumbnailPreview && thumbnailPreview.startsWith('blob:')) {
+                URL.revokeObjectURL(thumbnailPreview)
+            }
+        }
+    }, [thumbnailPreview])
 
     const handleThumbnailChange = (e) => {
         const file = e.target.files[0]
@@ -147,9 +158,11 @@ function EditVideoPage() {
                             type="file"
                             accept="image/*"
                             className="absolute inset-0 opacity-0 cursor-pointer"
-                            {...register('thumbnail', {
-                                onChange: handleThumbnailChange,
-                            })}
+                            {...thumbnailProps}
+                            onChange={(e) => {
+                                onThumbnailChange(e)
+                                handleThumbnailChange(e)
+                            }}
                         />
                     </div>
                 </div>

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { useDispatch, useSelector } from 'react-redux'
@@ -16,6 +16,13 @@ function UploadPage() {
     const [thumbnailPreview, setThumbnailPreview] = useState(null)
     const [uploadProgress, setUploadProgress] = useState(0)
 
+    useEffect(() => {
+        return () => {
+            if (videoPreview) URL.revokeObjectURL(videoPreview)
+            if (thumbnailPreview) URL.revokeObjectURL(thumbnailPreview)
+        }
+    }, [videoPreview, thumbnailPreview])
+
     const {
         register,
         handleSubmit,
@@ -26,6 +33,15 @@ function UploadPage() {
             description: '',
         },
     })
+
+    const { onChange: onVideoChange, ...videoProps } = register('videoFile', {
+        required: 'Video file is required',
+    })
+
+    const { onChange: onThumbnailChange, ...thumbnailProps } = register(
+        'thumbnailImage',
+        { required: 'Thumbnail is required' }
+    )
 
     const handleVideoChange = (e) => {
         const file = e.target.files[0]
@@ -105,10 +121,11 @@ function UploadPage() {
                             accept="video/*"
                             className={`${videoPreview ? 'hidden' : 'absolute inset-0 opacity-0 cursor-pointer'}`}
                             style={{ position: videoPreview ? 'static' : 'absolute' }}
-                            {...register('videoFile', {
-                                required: 'Video file is required',
-                                onChange: handleVideoChange,
-                            })}
+                            {...videoProps}
+                            onChange={(e) => {
+                                onVideoChange(e)
+                                handleVideoChange(e)
+                            }}
                         />
                     </div>
                     {errors.videoFile && (
@@ -150,10 +167,11 @@ function UploadPage() {
                             accept="image/*"
                             className={`${thumbnailPreview ? 'hidden' : 'absolute inset-0 opacity-0 cursor-pointer'}`}
                             style={{ position: thumbnailPreview ? 'static' : 'absolute' }}
-                            {...register('thumbnailImage', {
-                                required: 'Thumbnail is required',
-                                onChange: handleThumbnailChange,
-                            })}
+                            {...thumbnailProps}
+                            onChange={(e) => {
+                                onThumbnailChange(e)
+                                handleThumbnailChange(e)
+                            }}
                         />
                     </div>
                     {errors.thumbnailImage && (

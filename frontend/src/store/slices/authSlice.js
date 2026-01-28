@@ -53,7 +53,7 @@ export const register = createAsyncThunk(
             const response = await authService.register(formData)
             return response?.data || null
         } catch (error) {
-            return rejectWithValue(error.message)
+            return rejectWithValue(error)
         }
     }
 )
