@@ -8,17 +8,35 @@
     box-sizing: border-box;
 }
 
+html {
+    /* Smooth scrolling */
+    scroll-behavior: smooth;
+    /* Prevent text size adjustment on orientation change */
+    -webkit-text-size-adjust: 100%;
+}
+
 body {
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
     background-color: #0f0f0f;
     color: #ffffff;
     min-height: 100vh;
+    /* Prevent pull-to-refresh on mobile */
+    overscroll-behavior-y: contain;
+    /* Safe area insets for notched devices */
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
 }
 
-/* Custom scrollbar */
+/* Custom scrollbar - smaller on mobile */
 ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+    width: 6px;
+    height: 6px;
+}
+
+@media (min-width: 768px) {
+    ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
 }
 
 ::-webkit-scrollbar-track {
@@ -44,6 +62,17 @@ input,
 textarea,
 select {
     outline: none;
+    /* Prevent zoom on input focus on iOS */
+    font-size: 16px;
+}
+
+@media (min-width: 768px) {
+
+    input,
+    textarea,
+    select {
+        font-size: inherit;
+    }
 }
 
 input:focus,
@@ -74,5 +103,40 @@ select:focus {
         -webkit-line-clamp: 3;
         -webkit-box-orient: vertical;
         overflow: hidden;
+    }
+
+    /* Touch-friendly minimum sizes */
+    .touch-target {
+        min-width: 44px;
+        min-height: 44px;
+    }
+
+    /* Hide scrollbar but keep scroll functionality */
+    .hide-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+
+    .hide-scrollbar::-webkit-scrollbar {
+        display: none;
+    }
+
+    /* Safe area padding utilities */
+    .pb-safe {
+        padding-bottom: env(safe-area-inset-bottom);
+    }
+
+    .pt-safe {
+        padding-top: env(safe-area-inset-top);
+    }
+}
+
+/* Tap highlight color for mobile */
+@media (hover: none) and (pointer: coarse) {
+
+    button,
+    a,
+    [role="button"] {
+        -webkit-tap-highlight-color: rgba(255, 255, 255, 0.1);
     }
 }

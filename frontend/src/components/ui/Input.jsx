@@ -13,7 +13,7 @@ const Input = forwardRef(
                     ref={ref}
                     type={type}
                     className={`
-            w-full bg-[#121212] border border-gray-700 rounded-lg px-4 py-2.5
+            w-full bg-[#121212] border border-gray-700 rounded-lg px-4 py-2.5 min-h-[44px]
             text-white placeholder-gray-500
             focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500
             transition-colors
