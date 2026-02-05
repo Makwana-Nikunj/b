@@ -3,9 +3,9 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import videoService from '../services/videoService'
 import { Input, Textarea, Button } from '../components/ui'
+import { EditVideoSkeleton } from '../components/ui/Skeleton'
 import { HiPhotograph, HiArrowLeft } from 'react-icons/hi'
 import toast from 'react-hot-toast'
-import LoadingSpinner from '../components/ui/LoadingSpinner'
 
 function EditVideoPage() {
     const { videoId } = useParams()
@@ -85,11 +85,7 @@ function EditVideoPage() {
     }
 
     if (loading) {
-        return (
-            <div className="flex items-center justify-center min-h-[400px]">
-                <LoadingSpinner size="lg" />
-            </div>
-        )
+        return <EditVideoSkeleton />
     }
 
     if (!video) {
@@ -217,7 +213,7 @@ function EditVideoPage() {
                     >
                         {updating ? (
                             <>
-                                <LoadingSpinner size="sm" />
+                                <span className="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                                 <span className="ml-2">Updating...</span>
                             </>
                         ) : (

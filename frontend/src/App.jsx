@@ -9,7 +9,7 @@ import AuthLayout from './layouts/AuthLayout'
 
 // Components
 import ProtectedRoute from './components/ProtectedRoute'
-import LoadingSpinner from './components/ui/LoadingSpinner'
+import { PageLoadingSkeleton, VideoGridSkeleton } from './components/ui/Skeleton'
 
 // Lazy loaded pages for code splitting
 const HomePage = lazy(() => import('./pages/HomePage'))
@@ -33,7 +33,7 @@ const NotFoundPage = lazy(() => import('./pages/NotFoundPage'))
 // Loading fallback component
 const PageLoader = () => (
     <div className="min-h-[50vh] flex items-center justify-center">
-        <LoadingSpinner size="lg" />
+        <VideoGridSkeleton count={8} />
     </div>
 )
 
@@ -45,11 +45,11 @@ function App() {
         dispatch(getCurrentUser())
     }, [dispatch])
 
-    // Show loading spinner while checking auth status
+    // Show loading skeleton while checking auth status
     if (!isInitialized) {
         return (
             <div className="min-h-screen bg-dark-100 flex items-center justify-center">
-                <LoadingSpinner size="lg" />
+                <PageLoadingSkeleton />
             </div>
         )
     }

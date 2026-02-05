@@ -4,8 +4,8 @@ import { useDispatch, useSelector } from 'react-redux'
 import { fetchVideoById, clearCurrentVideo } from '../store/slices/videoSlice'
 import { fetchUserPlaylists, addVideoToPlaylist, removeVideoFromPlaylist, createPlaylist } from '../store/slices/playlistSlice'
 import { VideoPlayer } from '../components/video'
-import { Avatar, Button, LoadingSpinner, Textarea, Modal, Input } from '../components/ui'
-import { VideoPlayerSkeleton, VideoCardSkeleton } from '../components/ui/Skeleton'
+import { Avatar, Button, Textarea, Modal, Input } from '../components/ui'
+import { VideoPlayerSkeleton, VideoCardSkeleton, CommentsSkeleton } from '../components/ui/Skeleton'
 import { formatDistanceToNow } from '../utils/formatDate'
 import { formatViews, formatSubscribers } from '../utils/formatNumber'
 import { formatDuration } from '../utils/formatDuration'
@@ -226,8 +226,19 @@ function VideoPage() {
 
     if (isVideoLoading) {
         return (
-            <div className="flex justify-center py-12">
-                <LoadingSpinner size="lg" />
+            <div className="flex flex-col lg:flex-row gap-6">
+                <div className="flex-1 min-w-0">
+                    <VideoPlayerSkeleton />
+                    <div className="mt-8">
+                        <div className="h-6 bg-gray-700 rounded w-24 mb-4 animate-pulse" />
+                        <CommentsSkeleton count={3} />
+                    </div>
+                </div>
+                <div className="lg:w-96 space-y-4">
+                    {Array.from({ length: 6 }).map((_, i) => (
+                        <VideoCardSkeleton key={i} />
+                    ))}
+                </div>
             </div>
         )
     }

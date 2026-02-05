@@ -2,7 +2,8 @@ import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Link } from 'react-router-dom'
 import { fetchSubscribedChannels } from '../store/slices/subscriptionSlice'
-import { Avatar, LoadingSpinner, EmptyState } from '../components/ui'
+import { Avatar, EmptyState } from '../components/ui'
+import { SubscriptionsSkeleton } from '../components/ui/Skeleton'
 import { HiUserGroup } from 'react-icons/hi'
 import { formatSubscribers } from '../utils/formatNumber'
 
@@ -22,8 +23,9 @@ function SubscriptionsPage() {
 
     if (isLoading) {
         return (
-            <div className="flex justify-center py-12">
-                <LoadingSpinner size="lg" />
+            <div>
+                <div className="h-8 bg-gray-700 rounded w-36 mb-6 animate-pulse" />
+                <SubscriptionsSkeleton count={8} />
             </div>
         )
     }

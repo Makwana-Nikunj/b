@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
 import { likeService } from '../services'
 import { VideoGrid } from '../components/video'
-import { LoadingSpinner, EmptyState } from '../components/ui'
+import { EmptyState } from '../components/ui'
+import { VideoGridSkeleton } from '../components/ui/Skeleton'
 import { HiThumbUp } from 'react-icons/hi'
 
 function LikedVideosPage() {
@@ -27,8 +28,9 @@ function LikedVideosPage() {
 
     if (isLoading) {
         return (
-            <div className="flex justify-center py-12">
-                <LoadingSpinner size="lg" />
+            <div>
+                <div className="h-8 bg-gray-700 rounded w-32 mb-6 animate-pulse" />
+                <VideoGridSkeleton count={8} />
             </div>
         )
     }

@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
 import { authService } from '../services'
 import { VideoListItem } from '../components/video'
-import { LoadingSpinner, EmptyState } from '../components/ui'
+import { EmptyState } from '../components/ui'
+import { VideoGridSkeleton } from '../components/ui/Skeleton'
 import { HiClock } from 'react-icons/hi'
 
 function HistoryPage() {
@@ -26,8 +27,9 @@ function HistoryPage() {
 
     if (isLoading) {
         return (
-            <div className="flex justify-center py-12">
-                <LoadingSpinner size="lg" />
+            <div>
+                <div className="h-8 bg-gray-700 rounded w-36 mb-6 animate-pulse" />
+                <VideoGridSkeleton count={6} />
             </div>
         )
     }

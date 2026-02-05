@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { useForm } from 'react-hook-form'
 import { tweetService, likeService } from '../services'
-import { Avatar, Button, Textarea, LoadingSpinner, EmptyState } from '../components/ui'
+import { Avatar, Button, Textarea, EmptyState } from '../components/ui'
+import { TweetsSkeleton } from '../components/ui/Skeleton'
 import { HiAnnotation, HiThumbUp, HiTrash } from 'react-icons/hi'
 import { formatDistanceToNow } from '../utils/formatDate'
 import toast from 'react-hot-toast'
@@ -77,8 +78,9 @@ function TweetsPage() {
 
     if (isLoading) {
         return (
-            <div className="flex justify-center py-12">
-                <LoadingSpinner size="lg" />
+            <div className="max-w-2xl mx-auto">
+                <div className="h-8 bg-gray-700 rounded w-24 mb-6 animate-pulse" />
+                <TweetsSkeleton count={5} />
             </div>
         )
     }

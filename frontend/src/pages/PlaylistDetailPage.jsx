@@ -9,7 +9,8 @@ import {
     clearCurrentPlaylist,
 } from '../store/slices/playlistSlice'
 import { VideoListItem } from '../components/video'
-import { Button, Modal, Input, Textarea, LoadingSpinner, EmptyState } from '../components/ui'
+import { Button, Modal, Input, Textarea, EmptyState } from '../components/ui'
+import { VideoGridSkeleton } from '../components/ui/Skeleton'
 import { HiArrowLeft, HiPencil, HiFilm } from 'react-icons/hi'
 import toast from 'react-hot-toast'
 
@@ -68,8 +69,15 @@ function PlaylistDetailPage() {
 
     if (isLoading) {
         return (
-            <div className="flex justify-center py-12">
-                <LoadingSpinner size="lg" />
+            <div>
+                <div className="flex items-center gap-4 mb-6">
+                    <div className="w-10 h-10 bg-gray-700 rounded-full animate-pulse" />
+                    <div className="flex-1 space-y-2">
+                        <div className="h-8 bg-gray-700 rounded w-48 animate-pulse" />
+                        <div className="h-4 bg-gray-700 rounded w-32 animate-pulse" />
+                    </div>
+                </div>
+                <VideoGridSkeleton count={4} />
             </div>
         )
     }

@@ -3,7 +3,8 @@ import { useParams, Link } from 'react-router-dom'
 import { useSelector } from 'react-redux'
 import { authService, subscriptionService, videoService, playlistService } from '../services'
 import { VideoGrid } from '../components/video'
-import { Avatar, Button, LoadingSpinner, EmptyState } from '../components/ui'
+import { Avatar, Button, EmptyState } from '../components/ui'
+import { ChannelSkeleton, PlaylistGridSkeleton } from '../components/ui/Skeleton'
 import { formatSubscribers } from '../utils/formatNumber'
 import { HiCollection } from 'react-icons/hi'
 import toast from 'react-hot-toast'
@@ -103,11 +104,7 @@ function ChannelPage() {
     }
 
     if (isLoading) {
-        return (
-            <div className="flex justify-center py-12">
-                <LoadingSpinner size="lg" />
-            </div>
-        )
+        return <ChannelSkeleton />
     }
 
     if (!channel) {
@@ -198,9 +195,7 @@ function ChannelPage() {
 
                 {activeTab === 'playlists' && (
                     playlistsLoading ? (
-                        <div className="flex justify-center py-12">
-                            <LoadingSpinner size="lg" />
-                        </div>
+                        <PlaylistGridSkeleton count={6} />
                     ) : playlists.length === 0 ? (
                         <EmptyState
                             icon={HiCollection}

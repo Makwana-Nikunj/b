@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { Link } from 'react-router-dom'
 import { fetchUserPlaylists, createPlaylist, deletePlaylist } from '../store/slices/playlistSlice'
-import { Button, Modal, Input, Textarea, LoadingSpinner, EmptyState } from '../components/ui'
+import { Button, Modal, Input, Textarea, EmptyState } from '../components/ui'
+import { PlaylistGridSkeleton } from '../components/ui/Skeleton'
 import { HiPlus, HiCollection, HiTrash } from 'react-icons/hi'
 import { useForm } from 'react-hook-form'
 import toast from 'react-hot-toast'
@@ -64,9 +65,7 @@ function PlaylistPage() {
             </div>
 
             {isLoading ? (
-                <div className="flex justify-center py-12">
-                    <LoadingSpinner size="lg" />
-                </div>
+                <PlaylistGridSkeleton count={6} />
             ) : playlists.length === 0 ? (
                 <EmptyState
                     icon={HiCollection}

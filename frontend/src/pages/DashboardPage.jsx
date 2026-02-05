@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { dashboardService, videoService } from '../services'
-import { LoadingSpinner } from '../components/ui'
+import { DashboardSkeleton } from '../components/ui/Skeleton'
 import { HiEye, HiFilm, HiUserGroup, HiThumbUp, HiPencil, HiTrash } from 'react-icons/hi'
 import { formatViews } from '../utils/formatNumber'
 import { formatDistanceToNow } from '../utils/formatDate'
@@ -64,11 +64,7 @@ function DashboardPage() {
     }
 
     if (isLoading) {
-        return (
-            <div className="flex justify-center py-12">
-                <LoadingSpinner size="lg" />
-            </div>
-        )
+        return <DashboardSkeleton />
     }
 
     const statCards = [
