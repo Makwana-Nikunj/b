@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { fetchVideos } from '../store/slices/videoSlice'
 import VideoGrid from '../components/video/VideoGrid'
+import LoadingSpinner from '../components/ui/LoadingSpinner'
 
 function HomePage() {
     const dispatch = useDispatch()
@@ -19,12 +20,13 @@ function HomePage() {
 
     return (
         <div>
-            <h1 className="text-2xl font-bold text-white mb-6">Recommended</h1>
+            <h1 className="text-xl sm:text-2xl font-bold text-white mb-4 sm:mb-6">Recommended</h1>
 
             <VideoGrid
                 videos={videos}
                 isLoading={isLoading}
                 emptyMessage="No videos available"
+                skeletonCount={12}
             />
 
             {/* Load more button */}
@@ -32,10 +34,17 @@ function HomePage() {
                 <div className="flex justify-center mt-8">
                     <button
                         onClick={handleLoadMore}
-                        className="bg-gray-800 hover:bg-gray-700 text-white px-6 py-2 rounded-full transition-colors"
+                        className="bg-gray-800 hover:bg-gray-700 text-white px-6 py-2.5 rounded-full transition-colors min-h-[44px]"
                     >
                         Load more
                     </button>
+                </div>
+            )}
+
+            {/* Loading more indicator */}
+            {isLoading && videos.length > 0 && (
+                <div className="flex justify-center mt-8">
+                    <LoadingSpinner size="md" />
                 </div>
             )}
         </div>

@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import authService from '../../services/authService'
+import { setAuthStatus } from '../../api/axiosInstance'
 
 // Initial state
 const initialState = {
@@ -175,6 +176,8 @@ const authSlice = createSlice({
                 state.user = action.payload
                 state.isAuthenticated = true
                 state.error = null
+                // Sync auth status with axios interceptor
+                setAuthStatus(true)
             })
             .addCase(getCurrentUser.rejected, (state) => {
                 state.isLoading = false
@@ -193,6 +196,8 @@ const authSlice = createSlice({
                 state.user = action.payload
                 state.isAuthenticated = true
                 state.error = null
+                // Sync auth status with axios interceptor
+                setAuthStatus(true)
             })
             .addCase(login.rejected, (state, action) => {
                 state.isLoading = false

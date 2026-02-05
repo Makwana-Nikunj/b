@@ -1,10 +1,16 @@
+import { memo } from 'react'
 import { Link } from 'react-router-dom'
 import Avatar from '../ui/Avatar'
 import { formatDistanceToNow } from '../../utils/formatDate'
 import { formatViews } from '../../utils/formatNumber'
 import { formatDuration } from '../../utils/formatDuration'
+import { getOptimizedThumbnail } from '../../utils/optimizeImage'
 
-function VideoCard({ video }) {
+/**
+ * VideoCard component - memoized for performance
+ * Only re-renders when video data changes
+ */
+const VideoCard = memo(function VideoCard({ video }) {
     const {
         _id,
         thumbnail,
@@ -15,13 +21,17 @@ function VideoCard({ video }) {
         owner,
     } = video
 
+    // Optimize thumbnail URL for faster loading
+    const optimizedThumbnail = getOptimizedThumbnail(thumbnail, 'medium')
+
     return (
         <div className="group">
             {/* Thumbnail */}
             <Link to={`/video/${_id}`} className="block relative">
                 <img
-                    src={thumbnail}
+                    src={optimizedThumbnail}
                     alt={title}
+                    loading="lazy"
                     className="w-full aspect-video object-cover rounded-xl bg-gray-800"
                 />
                 {/* Duration badge */}
@@ -67,6 +77,6 @@ function VideoCard({ video }) {
             </div>
         </div>
     )
-}
+})
 
 export default VideoCard

@@ -26,7 +26,7 @@ const privateNavItems = [
 ]
 
 function Sidebar({ isOpen, isMobile = false }) {
-    const { isAuthenticated } = useSelector((state) => state.auth)
+    const { isAuthenticated, isInitialized } = useSelector((state) => state.auth)
 
     const navItems = isAuthenticated
         ? [...publicNavItems, ...privateNavItems]
@@ -59,7 +59,8 @@ function Sidebar({ isOpen, isMobile = false }) {
                 ))}
             </nav>
 
-            {!isAuthenticated && (isOpen || isMobile) && (
+            {/* Only show sign-in message after auth check is complete AND user is not authenticated */}
+            {isInitialized && !isAuthenticated && (isOpen || isMobile) && (
                 <div className="mx-4 mt-4 p-4 border-t border-gray-800">
                     <p className="text-sm text-gray-400">
                         Sign in to like videos, comment, and subscribe.
@@ -71,3 +72,4 @@ function Sidebar({ isOpen, isMobile = false }) {
 }
 
 export default Sidebar
+

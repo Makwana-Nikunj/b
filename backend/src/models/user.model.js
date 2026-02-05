@@ -18,6 +18,7 @@ const userSchema = new Schema(
             unique: true,
             lowercase: true,
             trim: true,
+            index: true  // Add index for faster email lookups (login)
         },
         fullName: {
             type: String,

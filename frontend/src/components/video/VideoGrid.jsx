@@ -1,18 +1,15 @@
 import VideoCard from './VideoCard'
-import LoadingSpinner from '../ui/LoadingSpinner'
 import EmptyState from '../ui/EmptyState'
+import { VideoGridSkeleton } from '../ui/Skeleton'
 import { HiFilm } from 'react-icons/hi'
 
-function VideoGrid({ videos, isLoading, emptyMessage = 'No videos found' }) {
+function VideoGrid({ videos, isLoading, emptyMessage = 'No videos found', skeletonCount = 8 }) {
     // Ensure videos is always an array
     const videoList = Array.isArray(videos) ? videos : []
 
-    if (isLoading) {
-        return (
-            <div className="flex justify-center py-12">
-                <LoadingSpinner size="lg" />
-            </div>
-        )
+    // Show skeleton loading instead of spinner
+    if (isLoading && videoList.length === 0) {
+        return <VideoGridSkeleton count={skeletonCount} />
     }
 
     if (videoList.length === 0) {

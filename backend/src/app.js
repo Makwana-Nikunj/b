@@ -1,6 +1,9 @@
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import compression from "compression";
+import { performanceMonitor } from "./middlewares/performance.middleware.js";
+import { keepAlive } from "./utils/keepAlive.js";
 
 const app = express();
 
@@ -8,6 +11,15 @@ const app = express();
  * IMPORTANT for Render (behind proxy)
  */
 app.set("trust proxy", 1);
+
+/**
+ * Performance & Compression middleware (add first for best results)
+ */
+app.use(compression({
+    level: 6,           // Compression level (0-9)
+    threshold: 1024,    // Only compress responses > 1KB
+}));
+app.use(performanceMonitor);
 
 /**
  * CORS configuration
@@ -21,8 +33,22 @@ app.use(
 
 app.use(express.json({ limit: "16kb" }));
 app.use(express.urlencoded({ extended: true, limit: "16kb" }));
-app.use(express.static("public"));
+app.use(express.static("public", {
+    maxAge: '1d',  // Cache static files for 1 day
+    etag: true
+}));
 app.use(cookieParser());
+
+/**
+ * Health check endpoint (for keep-alive and monitoring)
+ */
+app.get("/api/v1/health", (req, res) => {
+    res.status(200).json({
+        status: "ok",
+        timestamp: new Date().toISOString(),
+        uptime: process.uptime()
+    });
+});
 
 /**
  * Routes import
@@ -64,5 +90,12 @@ app.use((err, req, res, next) => {
         errors: err.errors || [],
     });
 });
+
+/**
+ * Start keep-alive service in production
+ */
+if (process.env.NODE_ENV === 'production') {
+    keepAlive();
+}
 
 export { app };

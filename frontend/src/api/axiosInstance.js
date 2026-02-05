@@ -7,6 +7,16 @@ import toast from "react-hot-toast";
 const API_BASE_URL =
     import.meta.env.VITE_API_URL || "http://localhost:8000/api/v1";
 
+// Track if user was ever authenticated (to avoid showing logout message on initial load)
+let wasAuthenticated = false;
+
+/**
+ * Set authentication status (called from authSlice)
+ */
+export const setAuthStatus = (isAuthenticated) => {
+    wasAuthenticated = isAuthenticated;
+};
+
 /**
  * Axios instance
  */
@@ -31,7 +41,7 @@ axiosInstance.interceptors.response.use(
             return Promise.reject(error);
         }
 
-        // Public GET endpoints (no auth)
+        // Public GET endpoints (no auth needed)
         const publicEndpoints = ["/videos", "/users/c/", "/users/channel/"];
         const isPublicEndpoint =
             originalRequest.method === "get" &&
@@ -54,18 +64,27 @@ axiosInstance.interceptors.response.use(
                 // Retry original request
                 return axiosInstance(originalRequest);
             } catch {
-                // Logout if refresh fails
+                // Only show "session expired" if user was previously authenticated
+                // This prevents the message from showing during initial page load
+                if (wasAuthenticated) {
+                    toast.error("Session expired. Please login again.");
+                }
+
+                // Logout
                 window.dispatchEvent(new CustomEvent("auth:logout"));
-                toast.error("Session expired. Please login again.");
+                wasAuthenticated = false;
+
                 return Promise.reject(error);
             }
         }
 
-        // Show error toast (except silent cases)
+        // Show error toast (except for 401s and getCurrentUser calls)
         const errorMessage =
             error.response?.data?.message || "Something went wrong";
 
-        if (error.response?.status !== 401) {
+        const isCurrentUserCheck = originalRequest.url?.includes("/users/current-user");
+
+        if (error.response?.status !== 401 && !isCurrentUserCheck) {
             toast.error(errorMessage);
         }
 

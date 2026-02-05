@@ -51,6 +51,25 @@ const videoSchema = new Schema(
     }
 )
 
+/**
+ * Database Indexes for Query Optimization
+ * These significantly improve query performance
+ */
+// Index for fetching user's videos sorted by date
+videoSchema.index({ owner: 1, createdAt: -1 });
+
+// Index for trending/popular videos
+videoSchema.index({ views: -1 });
+
+// Index for published videos sorted by date
+videoSchema.index({ isPublished: 1, createdAt: -1 });
+
+// Compound index for owner's videos by views
+videoSchema.index({ owner: 1, views: -1 });
+
+// Text index for search functionality
+videoSchema.index({ title: 'text', description: 'text' });
+
 videoSchema.plugin(mongooseAggregatePaginate)
 
 export const Video = mongoose.model("Video", videoSchema)

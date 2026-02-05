@@ -21,6 +21,14 @@ const commentSchema = new Schema(
     }
 )
 
+/**
+ * Database Indexes for Query Optimization
+ */
+// Index for fetching video comments sorted by date
+commentSchema.index({ video: 1, createdAt: -1 });
+
+// Index for user's comments
+commentSchema.index({ owner: 1, createdAt: -1 });
 
 commentSchema.plugin(mongooseAggregatePaginate)
 
