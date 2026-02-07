@@ -33,18 +33,18 @@ const generateUsername = (name, email) => {
 };
 
 /**
- * OAuth Login/Register - Unified endpoint for all OAuth providers
+ * OAuth Login/Register - Unified endpoint for all OAuth providers (PKCE flow)
  * POST /api/v1/users/oauth
  */
 export const oauthLogin = asyncHandler(async (req, res) => {
-    const { token, provider } = req.body;
+    const { code, codeVerifier, redirectUri, provider } = req.body;
 
-    if (!token || !provider) {
-        throw new ApiError(400, 'Token and provider are required');
+    if (!code || !codeVerifier || !redirectUri || !provider) {
+        throw new ApiError(400, 'Code, codeVerifier, redirectUri, and provider are required');
     }
 
-    // 1. Verify token with the provider
-    const oauthUser = await verifyOAuthToken(token, provider);
+    // 1. Exchange authorization code for user info (tokens handled server-side)
+    const oauthUser = await verifyOAuthToken({ code, codeVerifier, redirectUri }, provider);
     const { providerId, email, name, picture } = oauthUser;
 
     // 2. Find existing user by (providerId + authProvider) or email

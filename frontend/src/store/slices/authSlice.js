@@ -150,13 +150,13 @@ export const deleteAccount = createAsyncThunk(
 )
 
 /**
- * Social login (Google, Facebook, Microsoft)
+ * Social login using PKCE (Google, Facebook, Microsoft)
  */
 export const socialLogin = createAsyncThunk(
     'auth/socialLogin',
-    async ({ token, provider }, { rejectWithValue }) => {
+    async ({ code, codeVerifier, redirectUri, provider }, { rejectWithValue }) => {
         try {
-            const response = await authService.oauthLogin(token, provider)
+            const response = await authService.oauthLogin(code, codeVerifier, redirectUri, provider)
             return response?.data?.user || null
         } catch (error) {
             return rejectWithValue(error.message)

@@ -29,6 +29,7 @@ const SearchPage = lazy(() => import('./pages/SearchPage'))
 const SettingsPage = lazy(() => import('./pages/SettingsPage'))
 const TweetsPage = lazy(() => import('./pages/TweetsPage'))
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'))
+const OAuthCallback = lazy(() => import('./pages/OAuthCallback'))
 
 // Loading fallback component - generic for all pages (code chunk loading)
 // Each page handles its own data loading skeleton
@@ -75,6 +76,9 @@ function App() {
                     <Route path="/login" element={<LoginPage />} />
                     <Route path="/register" element={<RegisterPage />} />
                 </Route>
+
+                {/* OAuth callback (outside layouts - minimal page for popup) */}
+                <Route path="/oauth/callback" element={<OAuthCallback />} />
 
                 {/* Main app routes */}
                 <Route element={<MainLayout />}>

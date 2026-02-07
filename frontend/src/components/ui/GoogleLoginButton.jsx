@@ -21,18 +21,25 @@ function GoogleLoginButton({ className = '' }) {
     const handleGoogleLogin = async () => {
         setIsGoogleLoading(true)
         try {
-            // Get Google credential token
-            const token = await initSocialLogin('google')
+            // Get authorization code and PKCE data from Google popup
+            const { code, codeVerifier, redirectUri } = await initSocialLogin('google')
 
-            // Send to backend for verification and login
-            const result = await dispatch(socialLogin({ token, provider: 'google' })).unwrap()
+            // Send PKCE data to backend for secure token exchange
+            const result = await dispatch(socialLogin({
+                code,
+                codeVerifier,
+                redirectUri,
+                provider: 'google'
+            })).unwrap()
 
             if (result) {
                 toast.success('Welcome!')
                 navigate(from, { replace: true })
             }
         } catch (error) {
-            toast.error(error.message || 'Google login failed')
+            if (error.message !== 'Popup closed by user') {
+                toast.error(error.message || 'Google login failed')
+            }
         } finally {
             setIsGoogleLoading(false)
         }

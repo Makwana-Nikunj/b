@@ -108,12 +108,15 @@ const authService = {
     },
 
     /**
-     * OAuth login (Google, Facebook, Microsoft)
-     * @param {string} token - OAuth token from provider
+     * OAuth login using PKCE (Authorization Code flow)
+     * Tokens are exchanged server-side for security
+     * @param {string} code - Authorization code from provider
+     * @param {string} codeVerifier - PKCE code verifier
+     * @param {string} redirectUri - Redirect URI used in auth request
      * @param {string} provider - 'google' | 'facebook' | 'microsoft'
      */
-    oauthLogin: async (token, provider) => {
-        return axiosInstance.post('/users/oauth', { token, provider })
+    oauthLogin: async (code, codeVerifier, redirectUri, provider) => {
+        return axiosInstance.post('/users/oauth', { code, codeVerifier, redirectUri, provider })
     },
 }
 
