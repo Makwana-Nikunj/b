@@ -4,6 +4,16 @@ import bcrypt from "bcrypt"
 
 const userSchema = new Schema(
     {
+        // OAuth fields - works for any provider
+        providerId: {
+            type: String,
+            sparse: true  // Allows null for email/password users
+        },
+        authProvider: {
+            type: String,
+            enum: ['local', 'google', 'facebook', 'microsoft'],
+            default: 'local'
+        },
         username: {
             type: String,
             required: true,
@@ -27,12 +37,10 @@ const userSchema = new Schema(
             index: true
         },
         avatar: {
-            type: String, // cloudinary url
-            required: true,
+            type: String, // cloudinary url or Google profile picture
         },
         avatarPublicId: {
             type: String,
-            required: true,
         },
         coverImage: {
             type: String, // cloudinary url
@@ -48,7 +56,9 @@ const userSchema = new Schema(
         ],
         password: {
             type: String,
-            required: [true, 'Password is required']
+            required: function () {
+                return this.authProvider === 'local';
+            }
         },
         refreshToken: {
             type: String
@@ -61,7 +71,7 @@ const userSchema = new Schema(
 )
 
 userSchema.pre("save", async function () {
-    if (!this.isModified("password")) return;
+    if (!this.isModified("password") || !this.password) return;
 
     this.password = await bcrypt.hash(this.password, 10)
 })

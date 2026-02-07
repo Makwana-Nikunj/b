@@ -149,6 +149,21 @@ export const deleteAccount = createAsyncThunk(
     }
 )
 
+/**
+ * Social login (Google, Facebook, Microsoft)
+ */
+export const socialLogin = createAsyncThunk(
+    'auth/socialLogin',
+    async ({ token, provider }, { rejectWithValue }) => {
+        try {
+            const response = await authService.oauthLogin(token, provider)
+            return response?.data?.user || null
+        } catch (error) {
+            return rejectWithValue(error.message)
+        }
+    }
+)
+
 // Slice
 const authSlice = createSlice({
     name: 'auth',
@@ -301,6 +316,23 @@ const authSlice = createSlice({
                 state.error = null
             })
             .addCase(deleteAccount.rejected, (state, action) => {
+                state.isLoading = false
+                state.error = action.payload
+            })
+
+            // Social Login
+            .addCase(socialLogin.pending, (state) => {
+                state.isLoading = true
+                state.error = null
+            })
+            .addCase(socialLogin.fulfilled, (state, action) => {
+                state.isLoading = false
+                state.user = action.payload
+                state.isAuthenticated = true
+                state.error = null
+                setAuthStatus(true)
+            })
+            .addCase(socialLogin.rejected, (state, action) => {
                 state.isLoading = false
                 state.error = action.payload
             })

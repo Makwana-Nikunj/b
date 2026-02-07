@@ -13,6 +13,7 @@ import {
     getWatchHistory,
     deleteUser
 } from "../controllers/user.controller.js";
+import { oauthLogin } from "../controllers/oauth.controller.js";
 import { upload } from "../middlewares/multer.middleware.js"
 import { verifyJwt } from "../middlewares/auth.middleware.js";
 
@@ -35,6 +36,8 @@ router.route("/register").post(
 )
 
 router.route("/login").post(loginUser)
+
+router.route("/oauth").post(oauthLogin)
 
 router.route("/logout").post(verifyJwt, logoutUser)
 

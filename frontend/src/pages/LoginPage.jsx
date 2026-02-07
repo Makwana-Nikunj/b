@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate, useLocation, Link } from 'react-router-dom'
 import { login } from '../store/slices/authSlice'
 import { Input, Button } from '../components/ui'
+import GoogleLoginButton from '../components/ui/GoogleLoginButton'
 import toast from 'react-hot-toast'
 
 function LoginPage() {
@@ -77,6 +78,16 @@ function LoginPage() {
                     Sign in
                 </Button>
             </form>
+
+            {/* Divider */}
+            <div className="flex items-center gap-4 my-6">
+                <div className="flex-1 h-px bg-gray-700" />
+                <span className="text-gray-500 text-sm">or</span>
+                <div className="flex-1 h-px bg-gray-700" />
+            </div>
+
+            {/* Google Login */}
+            <GoogleLoginButton />
 
             <p className="text-center text-gray-400 mt-6">
                 Don't have an account?{' '}

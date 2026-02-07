@@ -106,6 +106,15 @@ const authService = {
     deleteAccount: async () => {
         return axiosInstance.delete('/users/delete-account')
     },
+
+    /**
+     * OAuth login (Google, Facebook, Microsoft)
+     * @param {string} token - OAuth token from provider
+     * @param {string} provider - 'google' | 'facebook' | 'microsoft'
+     */
+    oauthLogin: async (token, provider) => {
+        return axiosInstance.post('/users/oauth', { token, provider })
+    },
 }
 
 export default authService
