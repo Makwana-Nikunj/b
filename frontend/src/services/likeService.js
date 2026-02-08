@@ -21,14 +21,6 @@ const likeService = {
     },
 
     /**
-     * Toggle like on a tweet
-     * @param {string} tweetId
-     */
-    toggleTweetLike: async (tweetId) => {
-        return axiosInstance.post(`/likes/toggle/t/${tweetId}`)
-    },
-
-    /**
      * Get all liked videos of the current user
      */
     getLikedVideos: async () => {

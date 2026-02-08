@@ -4,7 +4,7 @@ import { User } from "../models/user.model.js"
 import { Video } from "../models/video.model.js"
 import { Like } from "../models/like.model.js"
 import { Comment } from "../models/comment.model.js"
-import { Tweet } from "../models/tweet.model.js"
+
 import { Playlist } from "../models/playlist.model.js"
 import { Subscription } from "../models/subscription.model.js"
 import { PendingEmail } from "../models/pendingEmail.model.js"
@@ -556,10 +556,7 @@ const deleteUser = asyncHandler(async (req, res) => {
     // 5. Delete all comments by this user
     await Comment.deleteMany({ owner: userId });
 
-    // 6. Delete all tweets by this user
-    await Tweet.deleteMany({ owner: userId });
-
-    // 7. Delete all playlists by this user
+    // 6. Delete all playlists by this user
     await Playlist.deleteMany({ owner: userId });
 
     // 8. Delete all subscriptions (where user is subscriber or channel)

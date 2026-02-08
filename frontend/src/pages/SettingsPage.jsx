@@ -294,7 +294,7 @@ function SettingsPage() {
                             <li>Your profile and all personal data</li>
                             <li>All your videos, thumbnails, and media files</li>
                             <li>All your comments and likes</li>
-                            <li>All your tweets and playlists</li>
+                            <li>All your playlists</li>
                             <li>All your subscriptions</li>
                         </ul>
                         <Button

@@ -144,44 +144,6 @@ export function ChannelSkeleton() {
 }
 
 /**
- * Tweet/Post Skeleton
- */
-export function TweetSkeleton() {
-    return (
-        <div className="flex gap-4 p-4 border-b border-gray-800 animate-pulse">
-            <div className="w-10 h-10 bg-gray-700 rounded-full flex-shrink-0" />
-            <div className="flex-1 space-y-3">
-                <div className="flex items-center gap-2">
-                    <div className="h-4 bg-gray-700 rounded w-24" />
-                    <div className="h-3 bg-gray-700 rounded w-16" />
-                </div>
-                <div className="space-y-2">
-                    <div className="h-4 bg-gray-700 rounded w-full" />
-                    <div className="h-4 bg-gray-700 rounded w-4/5" />
-                </div>
-                <div className="flex gap-6 mt-2">
-                    <div className="h-4 bg-gray-700 rounded w-12" />
-                    <div className="h-4 bg-gray-700 rounded w-12" />
-                </div>
-            </div>
-        </div>
-    )
-}
-
-/**
- * Tweets List Skeleton
- */
-export function TweetsSkeleton({ count = 5 }) {
-    return (
-        <div className="divide-y divide-gray-800">
-            {Array.from({ length: count }).map((_, index) => (
-                <TweetSkeleton key={index} />
-            ))}
-        </div>
-    )
-}
-
-/**
  * Playlist Card Skeleton
  */
 export function PlaylistCardSkeleton() {

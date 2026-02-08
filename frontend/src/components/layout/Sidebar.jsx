@@ -8,7 +8,6 @@ import {
     HiUserGroup,
     HiChartBar,
     HiCog,
-    HiAnnotation,
 } from 'react-icons/hi'
 
 const publicNavItems = [
@@ -20,7 +19,6 @@ const privateNavItems = [
     { path: '/playlists', icon: HiCollection, label: 'Playlists' },
     { path: '/history', icon: HiClock, label: 'History' },
     { path: '/liked-videos', icon: HiThumbUp, label: 'Liked videos' },
-    { path: '/tweets', icon: HiAnnotation, label: 'Tweets' },
     { path: '/dashboard', icon: HiChartBar, label: 'Dashboard' },
     { path: '/settings', icon: HiCog, label: 'Settings' },
 ]

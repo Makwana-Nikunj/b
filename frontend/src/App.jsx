@@ -30,7 +30,7 @@ const DashboardPage = lazy(() => import('./pages/DashboardPage'))
 const EditVideoPage = lazy(() => import('./pages/EditVideoPage'))
 const SearchPage = lazy(() => import('./pages/SearchPage'))
 const SettingsPage = lazy(() => import('./pages/SettingsPage'))
-const TweetsPage = lazy(() => import('./pages/TweetsPage'))
+
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'))
 const OAuthCallback = lazy(() => import('./pages/OAuthCallback'))
 
@@ -104,7 +104,7 @@ function App() {
                         <Route path="/subscriptions" element={<SubscriptionsPage />} />
                         <Route path="/dashboard" element={<DashboardPage />} />
                         <Route path="/settings" element={<SettingsPage />} />
-                        <Route path="/tweets" element={<TweetsPage />} />
+
                     </Route>
                 </Route>
 

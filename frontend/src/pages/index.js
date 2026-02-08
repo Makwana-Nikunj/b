@@ -17,5 +17,5 @@ export { default as SubscriptionsPage } from './SubscriptionsPage'
 export { default as DashboardPage } from './DashboardPage'
 export { default as SearchPage } from './SearchPage'
 export { default as SettingsPage } from './SettingsPage'
-export { default as TweetsPage } from './TweetsPage'
+
 export { default as NotFoundPage } from './NotFoundPage'
