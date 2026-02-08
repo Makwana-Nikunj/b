@@ -14,7 +14,10 @@ import { PageLoadingSkeleton } from './components/ui/Skeleton'
 // Lazy loaded pages for code splitting
 const HomePage = lazy(() => import('./pages/HomePage'))
 const LoginPage = lazy(() => import('./pages/LoginPage'))
+const InitiateRegisterPage = lazy(() => import('./pages/InitiateRegisterPage'))
 const RegisterPage = lazy(() => import('./pages/RegisterPage'))
+const ForgotPasswordPage = lazy(() => import('./pages/ForgotPasswordPage'))
+const ResetPasswordPage = lazy(() => import('./pages/ResetPasswordPage'))
 const VideoPage = lazy(() => import('./pages/VideoPage'))
 const ChannelPage = lazy(() => import('./pages/ChannelPage'))
 const UploadPage = lazy(() => import('./pages/UploadPage'))
@@ -74,7 +77,10 @@ function App() {
                 {/* Auth routes */}
                 <Route element={<AuthLayout />}>
                     <Route path="/login" element={<LoginPage />} />
-                    <Route path="/register" element={<RegisterPage />} />
+                    <Route path="/initiate-register" element={<InitiateRegisterPage />} />
+                    <Route path="/register/:token" element={<RegisterPage />} />
+                    <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+                    <Route path="/reset-password" element={<ResetPasswordPage />} />
                 </Route>
 
                 {/* OAuth callback (outside layouts - minimal page for popup) */}

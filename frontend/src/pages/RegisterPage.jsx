@@ -1,18 +1,46 @@
 import { useForm } from 'react-hook-form'
 import { useDispatch, useSelector } from 'react-redux'
-import { useNavigate, Link } from 'react-router-dom'
+import { useNavigate, Link, useParams } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import { register as registerUser } from '../store/slices/authSlice'
 import { Input, Button } from '../components/ui'
 import toast from 'react-hot-toast'
+import axios from '../api/axiosInstance'
 
 function RegisterPage() {
     const dispatch = useDispatch()
     const navigate = useNavigate()
+    const { token } = useParams()
     const { isLoading } = useSelector((state) => state.auth)
+
+    const [verifiedEmail, setVerifiedEmail] = useState(null)
+    const [verifying, setVerifying] = useState(true)
+    const [verificationError, setVerificationError] = useState(null)
 
     const [avatarPreview, setAvatarPreview] = useState(null)
     const [coverPreview, setCoverPreview] = useState(null)
+
+    // Verify token on mount
+    useEffect(() => {
+        const verifyToken = async () => {
+            if (!token) {
+                setVerificationError('No verification token provided')
+                setVerifying(false)
+                return
+            }
+
+            try {
+                const response = await axios.get(`/auth/verify-email/${token}`)
+                setVerifiedEmail(response.data.email)
+            } catch (error) {
+                setVerificationError(error.response?.data?.message || 'Invalid or expired verification link')
+            } finally {
+                setVerifying(false)
+            }
+        }
+
+        verifyToken()
+    }, [token])
 
     useEffect(() => {
         return () => {
@@ -31,7 +59,6 @@ function RegisterPage() {
         defaultValues: {
             fullName: '',
             username: '',
-            email: '',
             password: '',
             confirmPassword: '',
         },
@@ -63,8 +90,8 @@ function RegisterPage() {
         const formData = new FormData()
         formData.append('fullName', data.fullName)
         formData.append('username', data.username)
-        formData.append('email', data.email)
         formData.append('password', data.password)
+        formData.append('token', token)
 
         if (data.avatar?.[0]) {
             formData.append('avatar', data.avatar[0])
@@ -89,9 +116,43 @@ function RegisterPage() {
         }
     }
 
+    // Loading state
+    if (verifying) {
+        return (
+            <div className="bg-[#181818] rounded-xl p-8 border border-gray-800 text-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mx-auto"></div>
+                <p className="text-gray-400 mt-4">Verifying your email...</p>
+            </div>
+        )
+    }
+
+    // Error state
+    if (verificationError) {
+        return (
+            <div className="bg-[#181818] rounded-xl p-8 border border-gray-800 text-center">
+                <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg className="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </div>
+                <h2 className="text-2xl font-bold text-white mb-2">Verification Failed</h2>
+                <p className="text-gray-400 mb-6">{verificationError}</p>
+                <Link
+                    to="/initiate-register"
+                    className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-lg transition-colors"
+                >
+                    Try Again
+                </Link>
+            </div>
+        )
+    }
+
     return (
         <div className="bg-[#181818] rounded-xl p-6 border border-gray-800">
-            <h2 className="text-2xl font-bold text-white mb-6 text-center">Create account</h2>
+            <h2 className="text-2xl font-bold text-white mb-2 text-center">Complete your account</h2>
+            <p className="text-gray-400 text-center mb-6">
+                Email verified: <span className="text-green-500 font-medium">{verifiedEmail}</span>
+            </p>
 
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                 {/* Cover Image Preview */}
@@ -138,20 +199,6 @@ function RegisterPage() {
                         pattern: {
                             value: /^[a-z0-9_]+$/,
                             message: 'Username can only contain lowercase letters, numbers, and underscores',
-                        },
-                    })}
-                />
-
-                <Input
-                    label="Email"
-                    type="email"
-                    placeholder="Enter your email"
-                    error={errors.email?.message}
-                    {...register('email', {
-                        required: 'Email is required',
-                        pattern: {
-                            value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                            message: 'Invalid email address',
                         },
                     })}
                 />

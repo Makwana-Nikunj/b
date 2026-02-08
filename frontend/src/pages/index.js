@@ -1,7 +1,10 @@
 // Export all pages
 export { default as HomePage } from './HomePage'
 export { default as LoginPage } from './LoginPage'
+export { default as InitiateRegisterPage } from './InitiateRegisterPage'
 export { default as RegisterPage } from './RegisterPage'
+export { default as ForgotPasswordPage } from './ForgotPasswordPage'
+export { default as ResetPasswordPage } from './ResetPasswordPage'
 export { default as VideoPage } from './VideoPage'
 export { default as ChannelPage } from './ChannelPage'
 export { default as UploadPage } from './UploadPage'

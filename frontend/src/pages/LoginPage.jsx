@@ -77,6 +77,12 @@ function LoginPage() {
                 >
                     Sign in
                 </Button>
+
+                <div className="text-right">
+                    <Link to="/forgot-password" className="text-sm text-blue-500 hover:underline">
+                        Forgot password?
+                    </Link>
+                </div>
             </form>
 
             {/* Divider */}
@@ -91,7 +97,7 @@ function LoginPage() {
 
             <p className="text-center text-gray-400 mt-6">
                 Don't have an account?{' '}
-                <Link to="/register" className="text-blue-500 hover:underline">
+                <Link to="/initiate-register" className="text-blue-500 hover:underline">
                     Sign up
                 </Link>
             </p>

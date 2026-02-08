@@ -7,6 +7,7 @@ import { Comment } from "../models/comment.model.js"
 import { Tweet } from "../models/tweet.model.js"
 import { Playlist } from "../models/playlist.model.js"
 import { Subscription } from "../models/subscription.model.js"
+import { PendingEmail } from "../models/pendingEmail.model.js"
 import { uploadOnCloudinary, deleteFromCloudinary } from "../utils/cloudinary.js"
 import { ApiResponse } from "../utils/ApiResponse.js";
 import jwt from "jsonwebtoken";
@@ -32,33 +33,36 @@ const generateAccessAndRefreshToken = async (userId) => {
 }
 
 const registerUser = asyncHandler(async (req, res) => {
+    const { fullName, username, password, token } = req.body
 
-    const { fullName, email, username, password } = req.body
-    //console.log("email: ", email);
-
-    if (
-        [fullName, email, username, password].some((field) => field?.trim() === "")
-    ) {
+    // Validate required fields
+    if ([fullName, username, password, token].some((field) => !field?.trim())) {
         throw new ApiError(400, "All fields are required")
     }
 
+    // Verify the token and get email from PendingEmail
+    const pendingEmail = await PendingEmail.findOne({ token })
+    if (!pendingEmail) {
+        throw new ApiError(400, "Invalid or expired verification token. Please start registration again.")
+    }
+
+    const email = pendingEmail.email
+
+    // Check if username already exists
     const existedUser = await User.findOne({
-        $or: [{ username }, { email }]
+        $or: [{ username: username.toLowerCase() }, { email }]
     })
 
     if (existedUser) {
-        throw new ApiError(409, "User with email or username already exists")
+        throw new ApiError(409, "User with this email or username already exists")
     }
-    //console.log(req.files);
 
     const avatarLocalPath = req.files?.avatar?.[0]?.path;
-    //const coverImageLocalPath = req.files?.coverImage[0]?.path;
 
     let coverImageLocalPath;
     if (req.files && Array.isArray(req.files.coverImage) && req.files.coverImage.length > 0) {
         coverImageLocalPath = req.files.coverImage[0].path
     }
-
 
     if (!avatarLocalPath) {
         throw new ApiError(400, "Avatar file is required")
@@ -76,9 +80,6 @@ const registerUser = asyncHandler(async (req, res) => {
         throw new ApiError(400, "Avatar file is required")
     }
 
-
-
-
     const user = await User.create({
         fullName,
         avatar: avatar.secure_url,
@@ -90,6 +91,9 @@ const registerUser = asyncHandler(async (req, res) => {
         username: username.toLowerCase()
     })
 
+    // Delete the pending email entry after successful registration
+    await PendingEmail.deleteOne({ _id: pendingEmail._id })
+
     const createdUser = await User.findById(user._id).select(
         "-password -refreshToken"
     )
@@ -99,7 +103,7 @@ const registerUser = asyncHandler(async (req, res) => {
     }
 
     return res.status(201).json(
-        new ApiResponse(200, createdUser, "User registered Successfully")
+        new ApiResponse(201, createdUser, "User registered successfully")
     )
 
 })
