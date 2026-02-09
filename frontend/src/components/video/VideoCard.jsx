@@ -61,12 +61,12 @@ const VideoCard = memo(function VideoCard({ video }) {
                         </h3>
                     </Link>
 
-                    {owner?.username && (
+                    {(owner?.fullName || owner?.username) && (
                         <Link
-                            to={`/channel/${owner.username}`}
+                            to={`/channel/${owner.username || ''}`}
                             className="text-gray-400 text-sm hover:text-white transition-colors duration-200 mt-1 inline-block"
                         >
-                            {owner.fullName}
+                            {owner.fullName || owner.username}
                         </Link>
                     )}
 

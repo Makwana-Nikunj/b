@@ -459,20 +459,20 @@ function VideoPage() {
                     <p className="text-gray-500 text-center py-8 text-sm">No related videos found</p>
                 ) : (
                     <>
-                        {/* Mobile: horizontal scroll */}
-                        <div className="flex gap-3 overflow-x-auto scrollbar-none pb-3 -mx-4 px-4 sm:hidden">
+                        {/* Mobile: vertical list with larger cards */}
+                        <div className="space-y-3 sm:hidden">
                             {relatedVideos.map((video, index) => (
                                 <Link
                                     key={video._id}
                                     to={`/video/${video._id}`}
-                                    className="flex-shrink-0 w-[200px] group animate-fadeIn"
+                                    className="flex gap-3 group hover:bg-gray-800/50 p-1.5 rounded-xl transition-all duration-200 animate-fadeIn"
                                     style={{ animationDelay: `${index * 40}ms`, animationFillMode: 'both' }}
                                 >
-                                    <div className="relative">
+                                    <div className="relative flex-shrink-0">
                                         <img
                                             src={video.thumbnail}
                                             alt={video.title}
-                                            className="w-full h-[112px] object-cover rounded-xl bg-gray-800"
+                                            className="w-[168px] h-[94px] object-cover rounded-lg bg-gray-800"
                                         />
                                         {video.duration && (
                                             <span className="absolute bottom-1 right-1 bg-black/80 text-white text-[10px] px-1.5 py-0.5 rounded font-medium">
@@ -480,9 +480,17 @@ function VideoPage() {
                                             </span>
                                         )}
                                     </div>
-                                    <h4 className="text-white text-xs font-medium line-clamp-2 mt-2 group-hover:text-primary-400 transition-colors">{video.title}</h4>
-                                    <p className="text-gray-400 text-[11px] mt-0.5">{video.owner?.fullName}</p>
-                                    <p className="text-gray-500 text-[11px]">{formatViews(video.views)} views</p>
+                                    <div className="flex-1 min-w-0 py-0.5">
+                                        <h4 className="text-white text-sm font-medium line-clamp-2 leading-snug group-hover:text-primary-400 transition-colors">
+                                            {video.title}
+                                        </h4>
+                                        <p className="text-gray-400 text-xs mt-1.5">
+                                            {video.owner?.fullName || video.owner?.username}
+                                        </p>
+                                        <p className="text-gray-500 text-xs mt-0.5">
+                                            {formatViews(video.views)} views • {formatDistanceToNow(video.createdAt)}
+                                        </p>
+                                    </div>
                                 </Link>
                             ))}
                         </div>
@@ -500,7 +508,7 @@ function VideoPage() {
                                         <img
                                             src={video.thumbnail}
                                             alt={video.title}
-                                            className="w-40 h-[90px] object-cover rounded-lg bg-gray-800"
+                                            className="w-44 h-[100px] object-cover rounded-lg bg-gray-800"
                                         />
                                         {video.duration && (
                                             <span className="absolute bottom-1 right-1 bg-black/80 text-white text-[10px] px-1.5 py-0.5 rounded font-medium">
@@ -513,7 +521,7 @@ function VideoPage() {
                                             {video.title}
                                         </h4>
                                         <p className="text-gray-400 text-xs mt-1">
-                                            {video.owner?.fullName}
+                                            {video.owner?.fullName || video.owner?.username}
                                         </p>
                                         <p className="text-gray-500 text-xs">
                                             {formatViews(video.views)} views • {formatDistanceToNow(video.createdAt)}

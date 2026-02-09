@@ -101,7 +101,17 @@ function VideoPlayer({ src, poster, title }) {
     // Fullscreen change listener
     useEffect(() => {
         const handler = () => {
-            setIsFullscreen(!!document.fullscreenElement || !!document.webkitFullscreenElement)
+            const isFs = !!document.fullscreenElement || !!document.webkitFullscreenElement
+            setIsFullscreen(isFs)
+
+            // Unlock orientation when exiting fullscreen
+            if (!isFs && isMobile) {
+                try {
+                    if (screen.orientation?.unlock) {
+                        screen.orientation.unlock()
+                    }
+                } catch (e) { /* ignore */ }
+            }
         }
         document.addEventListener('fullscreenchange', handler)
         document.addEventListener('webkitfullscreenchange', handler)
@@ -109,7 +119,7 @@ function VideoPlayer({ src, poster, title }) {
             document.removeEventListener('fullscreenchange', handler)
             document.removeEventListener('webkitfullscreenchange', handler)
         }
-    }, [])
+    }, [isMobile])
 
     useEffect(() => {
         const video = videoRef.current
@@ -300,13 +310,20 @@ function VideoPlayer({ src, poster, title }) {
         video.currentTime = percentage * duration
     }
 
-    // Mobile-friendly fullscreen
-    const toggleFullscreen = () => {
+    // Mobile-friendly fullscreen with landscape lock
+    const toggleFullscreen = async () => {
         const container = containerRef.current
         const video = videoRef.current
         if (!container || !video) return
 
         if (document.fullscreenElement || document.webkitFullscreenElement) {
+            // Unlock orientation before exiting fullscreen
+            try {
+                if (screen.orientation?.unlock) {
+                    screen.orientation.unlock()
+                }
+            } catch (e) { /* ignore */ }
+
             if (document.exitFullscreen) {
                 document.exitFullscreen()
             } else if (document.webkitExitFullscreen) {
@@ -314,11 +331,20 @@ function VideoPlayer({ src, poster, title }) {
             }
         } else {
             if (container.requestFullscreen) {
-                container.requestFullscreen()
+                await container.requestFullscreen()
             } else if (container.webkitRequestFullscreen) {
                 container.webkitRequestFullscreen()
             } else if (video.webkitEnterFullscreen) {
                 video.webkitEnterFullscreen()
+            }
+
+            // Lock to landscape on mobile
+            if (isMobile) {
+                try {
+                    if (screen.orientation?.lock) {
+                        await screen.orientation.lock('landscape')
+                    }
+                } catch (e) { /* orientation lock not supported or failed */ }
             }
         }
     }
