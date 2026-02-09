@@ -35,7 +35,7 @@ function HistoryPage() {
     }
 
     return (
-        <div>
+        <div className="page-transition">
             <h1 className="text-2xl font-bold text-white mb-6">Watch History</h1>
 
             {history.length === 0 ? (

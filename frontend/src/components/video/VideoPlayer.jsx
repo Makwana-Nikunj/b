@@ -8,6 +8,27 @@ import {
 } from 'react-icons/hi'
 import { formatDuration } from '../../utils/formatDuration'
 
+const PLAYBACK_SPEEDS = [0.5, 0.75, 1, 1.25, 1.5, 2]
+const VIDEO_QUALITIES = ['Auto', '1080p', '720p', '480p', '360p']
+
+// Generate Cloudinary URL with quality transformation
+const getQualityUrl = (originalUrl, quality) => {
+    if (!originalUrl || quality === 'Auto') return originalUrl
+
+    const height = parseInt(quality)
+    if (isNaN(height)) return originalUrl
+
+    if (originalUrl.includes('cloudinary.com')) {
+        const uploadIndex = originalUrl.indexOf('/upload/')
+        if (uploadIndex !== -1) {
+            const beforeUpload = originalUrl.slice(0, uploadIndex + 8)
+            const afterUpload = originalUrl.slice(uploadIndex + 8)
+            return `${beforeUpload}q_auto,h_${height}/${afterUpload}`
+        }
+    }
+    return originalUrl
+}
+
 function VideoPlayer({ src, poster, title }) {
     const videoRef = useRef(null)
     const containerRef = useRef(null)
@@ -19,9 +40,33 @@ function VideoPlayer({ src, poster, title }) {
     const [currentTime, setCurrentTime] = useState(0)
     const [duration, setDuration] = useState(0)
     const [showControls, setShowControls] = useState(true)
-    const [skipAnimation, setSkipAnimation] = useState(null) // 'forward' | 'backward' | null
+    const [skipAnimation, setSkipAnimation] = useState(null)
+    const [playbackSpeed, setPlaybackSpeed] = useState(1)
+    const [quality, setQuality] = useState('Auto')
+    const [videoSrc, setVideoSrc] = useState(src)
+    const [showSpeedMenu, setShowSpeedMenu] = useState(false)
+    const [showQualityMenu, setShowQualityMenu] = useState(false)
 
     let hideControlsTimeout = null
+
+    // Update video source when quality changes
+    useEffect(() => {
+        const newSrc = getQualityUrl(src, quality)
+        if (newSrc !== videoSrc) {
+            const video = videoRef.current
+            const currentTimePos = video?.currentTime || 0
+            const wasPlaying = !video?.paused
+
+            setVideoSrc(newSrc)
+
+            if (video) {
+                video.onloadedmetadata = () => {
+                    video.currentTime = currentTimePos
+                    if (wasPlaying) video.play()
+                }
+            }
+        }
+    }, [src, quality])
 
     useEffect(() => {
         const video = videoRef.current
@@ -47,7 +92,13 @@ function VideoPlayer({ src, poster, title }) {
         const video = videoRef.current
         if (!video) return
 
-        // Prevent default for these keys
+        const activeElement = document.activeElement
+        const isTyping = activeElement?.tagName === 'INPUT' ||
+            activeElement?.tagName === 'TEXTAREA' ||
+            activeElement?.isContentEditable
+
+        if (isTyping) return
+
         if (['f', 'F', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', ' '].includes(e.key)) {
             e.preventDefault()
         }
@@ -55,11 +106,7 @@ function VideoPlayer({ src, poster, title }) {
         switch (e.key) {
             case 'f':
             case 'F':
-                if (document.fullscreenElement) {
-                    document.exitFullscreen()
-                } else {
-                    video.parentElement.requestFullscreen()
-                }
+                toggleFullscreen()
                 break
             case 'ArrowLeft':
                 video.currentTime = Math.max(0, video.currentTime - 5)
@@ -145,14 +192,28 @@ function VideoPlayer({ src, poster, title }) {
         video.currentTime = percentage * duration
     }
 
+    // Mobile-friendly fullscreen
     const toggleFullscreen = () => {
+        const container = containerRef.current
         const video = videoRef.current
-        if (!video) return
+        if (!container || !video) return
 
-        if (document.fullscreenElement) {
-            document.exitFullscreen()
+        if (document.fullscreenElement || document.webkitFullscreenElement) {
+            if (document.exitFullscreen) {
+                document.exitFullscreen()
+            } else if (document.webkitExitFullscreen) {
+                document.webkitExitFullscreen()
+            }
         } else {
-            video.parentElement.requestFullscreen()
+            // Try container first, fallback to video for iOS
+            if (container.requestFullscreen) {
+                container.requestFullscreen()
+            } else if (container.webkitRequestFullscreen) {
+                container.webkitRequestFullscreen()
+            } else if (video.webkitEnterFullscreen) {
+                // iOS Safari native fullscreen
+                video.webkitEnterFullscreen()
+            }
         }
     }
 
@@ -162,105 +223,136 @@ function VideoPlayer({ src, poster, title }) {
         hideControlsTimeout = setTimeout(() => {
             if (isPlaying) {
                 setShowControls(false)
+                setShowSpeedMenu(false)
+                setShowQualityMenu(false)
             }
         }, 3000)
+    }
+
+    const handleSpeedChange = (speed) => {
+        const video = videoRef.current
+        if (!video) return
+        video.playbackRate = speed
+        setPlaybackSpeed(speed)
+        setShowSpeedMenu(false)
+    }
+
+    const handleQualityChange = (q) => {
+        setQuality(q)
+        setShowQualityMenu(false)
+    }
+
+    const closeMenus = () => {
+        setShowSpeedMenu(false)
+        setShowQualityMenu(false)
     }
 
     const progressPercentage = duration > 0 ? (currentTime / duration) * 100 : 0
 
     return (
         <div
-            className="relative bg-black group"
+            ref={containerRef}
+            className="relative bg-black group rounded-2xl overflow-hidden"
             onMouseMove={handleMouseMove}
-            onMouseLeave={() => isPlaying && setShowControls(false)}
+            onMouseLeave={() => {
+                if (isPlaying) setShowControls(false)
+                closeMenus()
+            }}
+            onClick={(e) => {
+                // Close menus when clicking outside
+                if (!e.target.closest('.menu-container')) {
+                    closeMenus()
+                }
+            }}
         >
             <video
                 ref={videoRef}
-                src={src}
+                src={videoSrc}
                 poster={poster}
                 className="w-full aspect-video"
                 onClick={togglePlay}
                 title={title}
+                playsInline
+                webkit-playsinline="true"
             />
 
-            {/* Skip backward animation */}
+            {/* Skip animations - YouTube style */}
             {skipAnimation === 'backward' && (
-                <div className="absolute left-8 top-1/2 -translate-y-1/2 flex items-center justify-center animate-ping">
-                    <div className="bg-black/60 rounded-full p-4 flex flex-col items-center">
-                        <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M12.5 3C17.15 3 21.08 6.03 22.47 10.22L20.1 11C19.05 7.81 16.04 5.5 12.5 5.5C10.54 5.5 8.77 6.22 7.38 7.38L10 10H3V3L5.6 5.6C7.45 4 9.85 3 12.5 3M10 12V22H8V14H6V12H10M18 14V20C18 21.11 17.11 22 16 22H14C12.9 22 12 21.11 12 20V14C12 12.9 12.9 12 14 12H16C17.11 12 18 12.9 18 14M14 14V20H16V14H14Z" />
-                        </svg>
-                        <span className="text-white text-sm font-bold mt-1">5s</span>
+                <div className="absolute left-0 top-0 bottom-0 w-1/3 flex items-center justify-center pointer-events-none">
+                    <div className="flex flex-col items-center animate-[fadeScale_0.5s_ease-out]">
+                        <div className="flex gap-1">
+                            <svg className="w-5 h-5 text-white animate-[slideLeft_0.3s_ease-out]" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M11 18V6l-8.5 6 8.5 6zm.5-6l8.5 6V6l-8.5 6z" />
+                            </svg>
+                            <svg className="w-5 h-5 text-white animate-[slideLeft_0.3s_ease-out_0.1s]" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M11 18V6l-8.5 6 8.5 6zm.5-6l8.5 6V6l-8.5 6z" />
+                            </svg>
+                        </div>
+                        <span className="text-white text-sm font-medium mt-1">5 seconds</span>
                     </div>
                 </div>
             )}
 
-            {/* Skip forward animation */}
             {skipAnimation === 'forward' && (
-                <div className="absolute right-8 top-1/2 -translate-y-1/2 flex items-center justify-center animate-ping">
-                    <div className="bg-black/60 rounded-full p-4 flex flex-col items-center">
-                        <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M10 3C4.08 3 0 6.97 0 12H2C2 8.07 5.59 5 10 5C11.96 5 13.73 5.72 15.12 6.88L12.5 9.5H19.5V2.5L17.09 4.91C15.26 3.42 12.77 2.5 10 2.5V3M8 14V20C8 21.11 7.11 22 6 22H4C2.9 22 2 21.11 2 20V14C2 12.9 2.9 12 4 12H6C7.11 12 8 12.9 8 14M4 14V20H6V14H4M18 12H12V14H16V16H14V18H16V20H12V22H18V12Z" />
-                        </svg>
-                        <span className="text-white text-sm font-bold mt-1">5s</span>
+                <div className="absolute right-0 top-0 bottom-0 w-1/3 flex items-center justify-center pointer-events-none">
+                    <div className="flex flex-col items-center animate-[fadeScale_0.5s_ease-out]">
+                        <div className="flex gap-1">
+                            <svg className="w-5 h-5 text-white animate-[slideRight_0.3s_ease-out]" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M4 18l8.5-6L4 6v12zm9-12v12l8.5-6L13 6z" />
+                            </svg>
+                            <svg className="w-5 h-5 text-white animate-[slideRight_0.3s_ease-out_0.1s]" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M4 18l8.5-6L4 6v12zm9-12v12l8.5-6L13 6z" />
+                            </svg>
+                        </div>
+                        <span className="text-white text-sm font-medium mt-1">5 seconds</span>
                     </div>
                 </div>
             )}
 
-            {/* Play/Pause overlay */}
+            {/* Center play/pause overlay */}
             <button
                 onClick={togglePlay}
-                className={`absolute inset-0 flex items-center justify-center bg-black/30 transition-opacity ${showControls || !isPlaying ? 'opacity-100' : 'opacity-0'
-                    }`}
+                className={`absolute inset-0 flex items-center justify-center transition-opacity ${showControls || !isPlaying ? 'opacity-100' : 'opacity-0'}`}
             >
-                <div className="w-16 h-16 bg-black/60 rounded-full flex items-center justify-center">
+                <div className="w-16 h-16 sm:w-20 sm:h-20 bg-black/50 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-black/70 transition-all hover:scale-110">
                     {isPlaying ? (
-                        <HiPause className="w-8 h-8 text-white" />
+                        <HiPause className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
                     ) : (
-                        <HiPlay className="w-8 h-8 text-white ml-1" />
+                        <HiPlay className="w-8 h-8 sm:w-10 sm:h-10 text-white ml-1" />
                     )}
                 </div>
             </button>
 
-            {/* Controls */}
+            {/* Bottom controls */}
             <div
-                className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4 transition-opacity ${showControls ? 'opacity-100' : 'opacity-0'
-                    }`}
+                className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent p-3 sm:p-4 pt-12 transition-opacity ${showControls ? 'opacity-100' : 'opacity-0'}`}
             >
                 {/* Progress bar */}
                 <div
                     ref={progressRef}
-                    className="h-1 bg-gray-600 rounded-full cursor-pointer mb-3"
+                    className="h-1 bg-white/30 rounded-full cursor-pointer mb-3 group/progress hover:h-1.5 transition-all"
                     onClick={handleProgressClick}
                 >
                     <div
-                        className="h-full bg-red-600 rounded-full relative"
+                        className="h-full bg-red-500 rounded-full relative"
                         style={{ width: `${progressPercentage}%` }}
                     >
-                        <div className="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 bg-red-600 rounded-full" />
+                        <div className="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 bg-red-500 rounded-full scale-0 group-hover/progress:scale-100 transition-transform" />
                     </div>
                 </div>
 
                 {/* Controls row */}
-                <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4">
+                <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2 sm:gap-4">
                         {/* Play/Pause */}
-                        <button onClick={togglePlay} className="text-white">
-                            {isPlaying ? (
-                                <HiPause className="w-6 h-6" />
-                            ) : (
-                                <HiPlay className="w-6 h-6" />
-                            )}
+                        <button onClick={togglePlay} className="text-white p-1 hover:scale-110 transition-transform">
+                            {isPlaying ? <HiPause className="w-6 h-6" /> : <HiPlay className="w-6 h-6" />}
                         </button>
 
-                        {/* Volume */}
-                        <div className="flex items-center gap-2">
-                            <button onClick={toggleMute} className="text-white">
-                                {isMuted || volume === 0 ? (
-                                    <HiVolumeOff className="w-6 h-6" />
-                                ) : (
-                                    <HiVolumeUp className="w-6 h-6" />
-                                )}
+                        {/* Volume - hide on mobile */}
+                        <div className="hidden sm:flex items-center gap-2">
+                            <button onClick={toggleMute} className="text-white p-1">
+                                {isMuted || volume === 0 ? <HiVolumeOff className="w-6 h-6" /> : <HiVolumeUp className="w-6 h-6" />}
                             </button>
                             <input
                                 type="range"
@@ -269,20 +361,76 @@ function VideoPlayer({ src, poster, title }) {
                                 step="0.1"
                                 value={isMuted ? 0 : volume}
                                 onChange={handleVolumeChange}
-                                className="w-20 accent-white"
+                                className="w-16 accent-white cursor-pointer"
                             />
                         </div>
 
                         {/* Time */}
-                        <div className="text-white text-sm">
+                        <div className="text-white text-xs sm:text-sm">
                             {formatDuration(currentTime)} / {formatDuration(duration)}
                         </div>
                     </div>
 
-                    {/* Fullscreen */}
-                    <button onClick={toggleFullscreen} className="text-white">
-                        <HiArrowsExpand className="w-6 h-6" />
-                    </button>
+                    <div className="flex items-center gap-1 sm:gap-2">
+                        {/* Speed selector */}
+                        <div className="relative menu-container">
+                            <button
+                                onClick={() => {
+                                    setShowSpeedMenu(!showSpeedMenu)
+                                    setShowQualityMenu(false)
+                                }}
+                                className={`text-white text-xs sm:text-sm px-2 py-1 rounded hover:bg-white/20 transition-colors ${playbackSpeed !== 1 ? 'bg-white/20' : ''}`}
+                            >
+                                {playbackSpeed}x
+                            </button>
+                            {showSpeedMenu && (
+                                <div className="absolute bottom-full right-0 mb-2 bg-gray-900/95 backdrop-blur-sm rounded-lg shadow-xl border border-white/10 overflow-hidden min-w-[80px]">
+                                    {PLAYBACK_SPEEDS.map((speed) => (
+                                        <button
+                                            key={speed}
+                                            onClick={() => handleSpeedChange(speed)}
+                                            className={`w-full px-3 py-2 text-left text-sm hover:bg-white/10 transition-colors ${playbackSpeed === speed ? 'text-blue-400 bg-white/5' : 'text-white'
+                                                }`}
+                                        >
+                                            {speed}x
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Quality selector */}
+                        <div className="relative menu-container">
+                            <button
+                                onClick={() => {
+                                    setShowQualityMenu(!showQualityMenu)
+                                    setShowSpeedMenu(false)
+                                }}
+                                className={`text-white text-xs sm:text-sm px-2 py-1 rounded hover:bg-white/20 transition-colors ${quality !== 'Auto' ? 'bg-white/20' : ''}`}
+                            >
+                                {quality}
+                            </button>
+                            {showQualityMenu && (
+                                <div className="absolute bottom-full right-0 mb-2 bg-gray-900/95 backdrop-blur-sm rounded-lg shadow-xl border border-white/10 overflow-hidden min-w-[80px]">
+                                    {VIDEO_QUALITIES.map((q) => (
+                                        <button
+                                            key={q}
+                                            onClick={() => handleQualityChange(q)}
+                                            className={`w-full px-3 py-2 text-left text-sm hover:bg-white/10 transition-colors ${quality === q ? 'text-blue-400 bg-white/5' : 'text-white'
+                                                }`}
+                                        >
+                                            {q}
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Fullscreen */}
+                        <button onClick={toggleFullscreen} className="text-white p-1 hover:scale-110 transition-transform">
+                            <HiArrowsExpand className="w-5 h-5 sm:w-6 sm:h-6" />
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>

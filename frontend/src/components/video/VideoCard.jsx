@@ -32,7 +32,7 @@ const VideoCard = memo(function VideoCard({ video }) {
                     src={optimizedThumbnail}
                     alt={title}
                     loading="lazy"
-                    className="w-full aspect-video object-cover rounded-xl bg-gray-800"
+                    className="w-full aspect-video object-cover rounded-2xl bg-gray-800"
                 />
                 {/* Duration badge */}
                 {duration && (

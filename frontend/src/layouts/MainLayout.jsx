@@ -1,6 +1,7 @@
 import { Outlet } from 'react-router-dom'
 import Navbar from '../components/layout/Navbar'
 import Sidebar from '../components/layout/Sidebar'
+import PageTransition from '../components/ui/PageTransition'
 import { useState, useEffect } from 'react'
 
 function MainLayout() {
@@ -51,14 +52,16 @@ function MainLayout() {
 
                 <main
                     className={`flex-1 transition-all duration-300 ${isMobile
-                            ? 'ml-0'
-                            : sidebarOpen
-                                ? 'ml-60'
-                                : 'ml-16'
+                        ? 'ml-0'
+                        : sidebarOpen
+                            ? 'ml-60'
+                            : 'ml-16'
                         }`}
                 >
                     <div className="p-3 sm:p-4 md:p-6">
-                        <Outlet />
+                        <PageTransition>
+                            <Outlet />
+                        </PageTransition>
                     </div>
                 </main>
             </div>

@@ -403,7 +403,7 @@ function VideoPage() {
             </div>
 
             {/* Related Videos Sidebar */}
-            <div className="w-full lg:w-[400px] flex-shrink-0">
+            <div className="w-full lg:w-[320px] flex-shrink-0">
                 <h3 className="text-lg font-semibold text-white mb-4">Related Videos</h3>
                 {relatedLoading ? (
                     <div className="flex justify-center py-4">
@@ -423,10 +423,10 @@ function VideoPage() {
                                     <img
                                         src={video.thumbnail}
                                         alt={video.title}
-                                        className="w-40 h-24 object-cover rounded-lg bg-gray-800"
+                                        className="w-36 h-20 object-cover rounded-lg bg-gray-800"
                                     />
                                     {video.duration && (
-                                        <span className="absolute bottom-1 right-1 bg-black/80 text-white text-xs px-1 py-0.5 rounded">
+                                        <span className="absolute bottom-1 right-1 bg-black/80 text-white text-[10px] px-1 py-0.5 rounded">
                                             {formatDuration(video.duration)}
                                         </span>
                                     )}

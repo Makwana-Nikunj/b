@@ -16,16 +16,16 @@ function VideoListItem({ video, onRemove, showRemoveButton = false }) {
     }
 
     return (
-        <div className="flex gap-3 group">
+        <div className="flex gap-4 group p-2 -ml-2 rounded-xl hover:bg-gray-800/50 transition-all duration-200">
             {/* Thumbnail */}
-            <Link to={`/video/${_id}`} className="relative flex-shrink-0">
+            <Link to={`/video/${_id}`} className="relative flex-shrink-0 overflow-hidden rounded-xl">
                 <img
                     src={thumbnail}
                     alt={title}
-                    className="w-40 h-24 object-cover rounded-lg bg-gray-800"
+                    className="w-56 h-32 object-cover bg-gray-800 transition-transform duration-200 group-hover:scale-105"
                 />
                 {duration && (
-                    <span className="absolute bottom-1 right-1 bg-black/80 text-white text-xs px-1 py-0.5 rounded">
+                    <span className="absolute bottom-1.5 right-1.5 bg-black/80 text-white text-xs px-1.5 py-0.5 rounded font-medium">
                         {formatDuration(duration)}
                     </span>
                 )}
