@@ -1,280 +1,496 @@
 <p align="center">
-  <h1 align="center">🎬 VidPlay</h1>
-  <p align="center">A modern full-stack video sharing platform built with React and Node.js</p>
+  <img src="https://img.shields.io/badge/VidPlay-Video%20Sharing%20Platform-FF0000?style=for-the-badge&labelColor=0d1117" alt="VidPlay" />
+</p>
+
+<h1 align="center">🎬 VidPlay</h1>
+<p align="center">
+  <strong>A modern, full-stack video sharing platform built for creators and viewers</strong>
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/React-18.2-61DAFB?style=for-the-badge&logo=react&logoColor=white" alt="React" />
-  <img src="https://img.shields.io/badge/Node.js-18+-339933?style=for-the-badge&logo=node.js&logoColor=white" alt="Node.js" />
-  <img src="https://img.shields.io/badge/Express-5.0-000000?style=for-the-badge&logo=express&logoColor=white" alt="Express" />
-  <img src="https://img.shields.io/badge/MongoDB-9.0-47A248?style=for-the-badge&logo=mongodb&logoColor=white" alt="MongoDB" />
-  <img src="https://img.shields.io/badge/Vite-5.0-646CFF?style=for-the-badge&logo=vite&logoColor=white" alt="Vite" />
-  <img src="https://img.shields.io/badge/TailwindCSS-3.4-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white" alt="Tailwind" />
+  <a href="https://vidplay-ecru.vercel.app">🌐 Live Demo</a> &nbsp;·&nbsp;
+  <a href="#-features">✨ Features</a> &nbsp;·&nbsp;
+  <a href="#-quick-start">🚀 Quick Start</a> &nbsp;·&nbsp;
+  <a href="#-api-reference">📡 API Reference</a>
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/React-18.2-61DAFB?style=flat-square&logo=react&logoColor=white" alt="React" />
+  <img src="https://img.shields.io/badge/Node.js-18+-339933?style=flat-square&logo=node.js&logoColor=white" alt="Node.js" />
+  <img src="https://img.shields.io/badge/Express-5.2-000000?style=flat-square&logo=express&logoColor=white" alt="Express" />
+  <img src="https://img.shields.io/badge/MongoDB-Mongoose%209-47A248?style=flat-square&logo=mongodb&logoColor=white" alt="MongoDB" />
+  <img src="https://img.shields.io/badge/Vite-5.0-646CFF?style=flat-square&logo=vite&logoColor=white" alt="Vite" />
+  <img src="https://img.shields.io/badge/Tailwind_CSS-3.4-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white" alt="Tailwind" />
+  <img src="https://img.shields.io/badge/Redux_Toolkit-2.0-764ABC?style=flat-square&logo=redux&logoColor=white" alt="Redux" />
+  <img src="https://img.shields.io/badge/Cloudinary-Media_CDN-3448C5?style=flat-square&logo=cloudinary&logoColor=white" alt="Cloudinary" />
 </p>
 
 ---
 
 ## 📑 Table of Contents
 
-1. [Getting Started with VidPlay](#1-getting-started-with-vidplay)
-2. [Configuration & Environment Variables](#2-configuration--environment-variables)
-3. [Core User Workflows](#3-core-user-workflows)
-4. [Backend API Server](#4-backend-api-server-nodejs--express--mongodb)
-5. [Frontend Application](#5-frontend-application-react--vite)
-6. [Infrastructure Utilities & Performance](#6-infrastructure-utilities--performance)
-7. [Troubleshooting & Common Issues](#7-troubleshooting--common-issues)
+- [Features](#-features)
+- [Tech Stack](#-tech-stack)
+- [Architecture](#-architecture)
+- [Quick Start](#-quick-start)
+- [Environment Variables](#-environment-variables)
+- [Project Structure](#-project-structure)
+- [API Reference](#-api-reference)
+- [Authentication Flows](#-authentication-flows)
+- [Frontend Deep Dive](#-frontend-deep-dive)
+- [Performance & Optimizations](#-performance--optimizations)
+- [Deployment](#-deployment)
+- [Troubleshooting](#-troubleshooting)
+- [Contributing](#-contributing)
+- [Author](#-author)
+- [License](#-license)
 
 ---
 
-## 1. Getting Started with VidPlay
+## ✨ Features
 
-### Project Overview
+### For Viewers
+| Feature | Description |
+|---------|-------------|
+| 🎥 **Video Streaming** | Custom video player with quality selection, playback speed, keyboard shortcuts, and mobile gestures |
+| 🔍 **Search** | Search videos by title, description, and tags |
+| 📱 **Responsive Design** | Mobile-first UI with landscape fullscreen, touch gestures, and adaptive layouts |
+| 📋 **Playlists** | Create, manage, and save videos to custom playlists |
+| 💬 **Comments** | Add, view, and delete comments on videos |
+| 👍 **Likes** | Like/unlike videos and view your liked videos |
+| 🔔 **Subscriptions** | Subscribe to channels and browse your subscriptions feed |
+| 🕒 **Watch History** | Automatically tracked viewing history |
 
-VidPlay is a **full-stack video sharing platform** that enables users to:
-- 📤 Upload and publish video content with thumbnails
-- ▶️ Stream and watch videos with a responsive player
-- 💬 Engage through likes, comments, and subscriptions
-- 📋 Organize content with custom playlists
-- 📊 Access creator dashboard with analytics
+### For Creators
+| Feature | Description |
+|---------|-------------|
+| 📤 **Video Upload** | Upload videos (MP4, WebM, MOV, AVI) with custom thumbnails |
+| 📊 **Dashboard** | Analytics with views, subscribers, likes, and video performance |
+| ✏️ **Video Management** | Edit titles, descriptions, thumbnails; toggle publish status |
+| 👤 **Channel Page** | Public channel profile with videos, playlists, and subscriber count |
+| ⚙️ **Settings** | Update profile, avatar, cover image, and change password |
 
-### System Architecture
+### Security & Auth
+| Feature | Description |
+|---------|-------------|
+| 🔐 **JWT Authentication** | Secure httpOnly cookie-based access & refresh tokens |
+| 🔑 **Google OAuth (PKCE)** | Sign in with Google using industry-standard PKCE flow |
+| 📧 **Email Verification** | Two-step registration with email verification |
+| 🔄 **Password Reset** | Token-based password reset via email |
+| 🛡️ **Auto Token Refresh** | Seamless token refresh via Axios interceptors |
+
+---
+
+## 🛠 Tech Stack
+
+### Frontend
+| Technology | Purpose |
+|-----------|---------|
+| **React 18** | UI framework with hooks & lazy loading |
+| **Vite 5** | Lightning-fast build tool & dev server |
+| **Redux Toolkit 2** | Global state management |
+| **React Router 6** | Client-side routing with code splitting |
+| **React Hook Form** | Performant form handling & validation |
+| **Tailwind CSS 3.4** | Utility-first styling |
+| **Axios** | HTTP client with interceptors |
+| **React Hot Toast** | Toast notifications |
+| **React Icons** | Icon library |
+
+### Backend
+| Technology | Purpose |
+|-----------|---------|
+| **Node.js 18+** | JavaScript runtime |
+| **Express 5** | Web framework |
+| **Mongoose 9** | MongoDB ODM |
+| **Cloudinary** | Video & image CDN |
+| **JWT** | Token-based authentication |
+| **Multer 2** | Multipart file uploads |
+| **bcrypt** | Password hashing |
+| **google-auth-library** | Google OAuth 2.0 |
+| **Nodemon** | Development hot-reload |
+
+---
+
+## 🏗 Architecture
 
 ```mermaid
 flowchart TB
-    subgraph Frontend["Frontend (React + Vite)"]
-        UI[React Components]
-        Redux[Redux Store]
-        Services[API Services]
+    subgraph Client["🖥 Frontend — React + Vite"]
+        UI["React Pages & Components"]
+        Redux["Redux Store<br/>(auth, videos, playlists)"]
+        Services["Service Layer<br/>(Axios)"]
+        UI --> Redux --> Services
     end
-    
-    subgraph Backend["Backend (Node.js + Express)"]
-        Routes[Express Routes]
-        Controllers[Controllers]
-        Middleware[Auth Middleware]
-        Models[Mongoose Models]
+
+    subgraph Server["⚙️ Backend — Node.js + Express 5"]
+        Routes["Route Handlers"]
+        Auth["Auth Middleware<br/>(JWT verification)"]
+        Controllers["Controllers"]
+        Models["Mongoose Models"]
+        Routes --> Auth --> Controllers --> Models
     end
-    
-    subgraph External["External Services"]
-        Cloudinary[(Cloudinary)]
-        MongoDB[(MongoDB)]
-        Resend[Resend Email]
-        Google[Google OAuth]
+
+    subgraph Cloud["☁️ External Services"]
+        Cloudinary["Cloudinary<br/>Video & Image CDN"]
+        MongoDB[("MongoDB Atlas<br/>Database")]
+        SMTP["Resend / SMTP<br/>Email Service"]
+        Google["Google OAuth 2.0"]
     end
-    
-    UI --> Redux --> Services
-    Services <-->|REST API| Routes
-    Routes --> Middleware --> Controllers
-    Controllers --> Models --> MongoDB
+
+    Services <-->|"REST API<br/>httpOnly Cookies"| Routes
+    Models --> MongoDB
     Controllers --> Cloudinary
-    Controllers --> Resend
+    Controllers --> SMTP
     Controllers <--> Google
 ```
 
+### Request Flow
+
+```
+Client Request
+  → Express Router
+    → Auth Middleware (JWT verify)
+      → Controller (business logic)
+        → Mongoose Model (database)
+        → Cloudinary (media upload)
+      ← ApiResponse / ApiError
+    ← JSON Response with httpOnly Cookies
+  ← Client receives data
+```
+
+---
+
+## 🚀 Quick Start
+
 ### Prerequisites
 
-| Requirement | Version | Purpose |
-|-------------|---------|---------|
-| **Node.js** | v18+ | Runtime environment |
-| **npm** | v9+ | Package management |
-| **MongoDB** | v6+ | Database (local or Atlas) |
-| **Cloudinary Account** | - | Media storage & CDN |
-| **Google Cloud Console** | - | OAuth authentication |
+- **Node.js** v18+ and **npm** v9+
+- **MongoDB** (local or [Atlas](https://www.mongodb.com/atlas) free tier)
+- **Cloudinary** account ([free signup](https://cloudinary.com/))
+- **Google Cloud Console** project (for OAuth — optional)
 
-### Installation Steps
+### Installation
 
 ```bash
-# 1. Clone the repository
+# Clone the repository
 git clone https://github.com/yourusername/vidplay.git
 cd vidplay
 
-# 2. Install backend dependencies
+# Install backend dependencies
 cd backend
 npm install
 
-# 3. Install frontend dependencies
+# Install frontend dependencies
 cd ../frontend
 npm install
 ```
 
-### Running the Application
+### Configuration
 
-**Start Backend Server:**
+Create environment files (see [Environment Variables](#-environment-variables) for all options):
+
 ```bash
+# Backend
+cp backend/.env.example backend/.env
+
+# Frontend  
+cp frontend/.env.example frontend/.env
+```
+
+### Run Development Servers
+
+```bash
+# Terminal 1 — Backend (http://localhost:8000)
 cd backend
-npm run dev        # Development with hot-reload (nodemon)
-npm start          # Production mode
-```
+npm run dev
 
-**Start Frontend Server:**
-```bash
+# Terminal 2 — Frontend (http://localhost:5173)
 cd frontend
-npm run dev        # Development server at http://localhost:5173
-npm run build      # Production build
-npm run preview    # Preview production build
+npm run dev
+```
+
+Open **http://localhost:5173** in your browser.
+
+---
+
+## 🔧 Environment Variables
+
+### Backend (`backend/.env`)
+
+| Variable | Description | Example |
+|----------|-------------|---------|
+| `PORT` | Server port | `8000` |
+| `NODE_ENV` | Environment | `development` |
+| `MONGODB_URI` | MongoDB connection string | `mongodb+srv://user:pass@cluster.mongodb.net/vidplay` |
+| `CORS_ORIGIN` | Allowed frontend origin | `http://localhost:5173` |
+| `ACCESS_TOKEN_SECRET` | JWT access token secret (32+ chars) | `your-secret-key` |
+| `ACCESS_TOKEN_EXPIRY` | Access token TTL | `1d` |
+| `REFRESH_TOKEN_SECRET` | JWT refresh token secret (32+ chars) | `your-secret-key` |
+| `REFRESH_TOKEN_EXPIRY` | Refresh token TTL | `10d` |
+| `CLOUDINARY_CLOUD_NAME` | Cloudinary cloud name | `your_cloud` |
+| `CLOUDINARY_API_KEY` | Cloudinary API key | `123456789` |
+| `CLOUDINARY_API_SECRET` | Cloudinary API secret | `your_secret` |
+| `EMAIL_HOST` | SMTP host | `smtp.resend.com` |
+| `EMAIL_PORT` | SMTP port | `587` |
+| `EMAIL_USER` | SMTP username | `resend` |
+| `EMAIL_PASSWORD` | SMTP password / API key | `re_xxxx` |
+| `GOOGLE_CLIENT_ID` | Google OAuth client ID | `xxxx.apps.googleusercontent.com` |
+| `GOOGLE_CLIENT_SECRET` | Google OAuth client secret | `GOCSPX-xxxx` |
+| `GOOGLE_REDIRECT_URI` | OAuth callback URL | `http://localhost:5173/oauth/callback` |
+
+### Frontend (`frontend/.env`)
+
+| Variable | Description | Example |
+|----------|-------------|---------|
+| `VITE_API_BASE_URL` | Backend API base URL | `http://localhost:8000/api/v1` |
+| `VITE_GOOGLE_CLIENT_ID` | Google OAuth client ID | `xxxx.apps.googleusercontent.com` |
+
+> ⚠️ **Never commit `.env` files.** Both directories have `.gitignore` entries for these files.
+
+---
+
+## 📁 Project Structure
+
+```
+vidplay/
+├── README.md
+├── backend/
+│   ├── package.json
+│   ├── public/temp/              # Temp file storage (multer uploads)
+│   └── src/
+│       ├── index.js              # Server entry — DB connect & listen
+│       ├── app.js                # Express app — middleware & routes
+│       ├── constants.js          # App-wide constants
+│       ├── auth/                 # OAuth config
+│       ├── controllers/          # Request handlers
+│       │   ├── auth.controller.js
+│       │   ├── user.controller.js
+│       │   ├── video.controller.js
+│       │   ├── comment.controller.js
+│       │   ├── like.controller.js
+│       │   ├── playlist.controller.js
+│       │   ├── subscription.controller.js
+│       │   ├── dashboard.controller.js
+│       │   └── healthcheck.controller.js
+│       ├── models/               # Mongoose schemas
+│       │   ├── user.model.js
+│       │   ├── video.model.js
+│       │   ├── comment.model.js
+│       │   ├── like.model.js
+│       │   ├── playlist.model.js
+│       │   ├── subscription.model.js
+│       │   ├── token.model.js
+│       │   └── pendingEmail.model.js
+│       ├── routes/               # Express route definitions
+│       ├── middlewares/
+│       │   ├── auth.middleware.js     # JWT verification
+│       │   ├── multer.middleware.js   # File upload handling
+│       │   └── performance.middleware.js
+│       ├── utils/
+│       │   ├── ApiError.js       # Custom error class
+│       │   ├── ApiResponse.js    # Standardized response
+│       │   ├── asyncHandler.js   # Async error wrapper
+│       │   ├── cloudinary.js     # Media upload/delete
+│       │   ├── email.util.js     # Transactional emails
+│       │   ├── cache.js          # Caching utilities
+│       │   └── keepAlive.js      # Production keep-alive
+│       └── db/
+│           └── index.js          # MongoDB connection
+│
+└── frontend/
+    ├── package.json
+    ├── index.html
+    ├── vite.config.js
+    ├── tailwind.config.js
+    ├── vercel.json               # Vercel deployment config
+    └── src/
+        ├── main.jsx              # React entry point
+        ├── App.jsx               # Root component & routing
+        ├── index.css             # Global styles + Tailwind
+        ├── api/
+        │   └── axiosInstance.js   # Axios with interceptors
+        ├── components/
+        │   ├── layout/           # Navbar, Sidebar
+        │   ├── ui/               # Button, Input, Avatar, Modal, Skeleton
+        │   └── video/            # VideoCard, VideoGrid, VideoPlayer
+        ├── layouts/
+        │   ├── MainLayout.jsx    # App shell (navbar + sidebar)
+        │   └── AuthLayout.jsx    # Login/register layout
+        ├── pages/                # 20+ route pages
+        ├── services/             # API service layer (1 per feature)
+        ├── store/
+        │   ├── store.js          # Redux store config
+        │   └── slices/           # authSlice, videoSlice, playlistSlice, etc.
+        └── utils/                # Formatters, helpers
 ```
 
 ---
 
-## 2. Configuration & Environment Variables
+## 📡 API Reference
 
-### Backend Environment Configuration
+Base URL: `http://localhost:8000/api/v1`
 
-Create `backend/.env`:
+### Authentication
 
-```env
-# Server Configuration
-PORT=8000
-NODE_ENV=development
+| Method | Endpoint | Description | Auth |
+|--------|----------|-------------|------|
+| `POST` | `/auth/login` | Login with email & password | No |
+| `POST` | `/auth/logout` | Logout (clear cookies) | Yes |
+| `POST` | `/auth/refresh-token` | Refresh access token | No |
+| `POST` | `/auth/google` | Google OAuth sign-in | No |
 
-# Database
-MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/vidplay
+### Users
 
-# CORS
-CORS_ORIGIN=http://localhost:5173
+| Method | Endpoint | Description | Auth |
+|--------|----------|-------------|------|
+| `POST` | `/users/initiate-register` | Start email verification | No |
+| `POST` | `/users/register` | Complete registration (with token) | No |
+| `GET` | `/users/current-user` | Get authenticated user | Yes |
+| `PATCH` | `/users/update-account` | Update profile details | Yes |
+| `PATCH` | `/users/avatar` | Update avatar | Yes |
+| `PATCH` | `/users/cover-image` | Update cover image | Yes |
+| `POST` | `/users/change-password` | Change password | Yes |
+| `POST` | `/users/forgot-password` | Request password reset email | No |
+| `POST` | `/users/reset-password` | Reset password with token | No |
+| `GET` | `/users/c/:username` | Get channel profile | No |
 
-# JWT Authentication
-ACCESS_TOKEN_SECRET=your-super-secret-access-token-key-min-32-chars
-ACCESS_TOKEN_EXPIRY=1d
-REFRESH_TOKEN_SECRET=your-super-secret-refresh-token-key-min-32-chars
-REFRESH_TOKEN_EXPIRY=10d
+### Videos
 
-# Cloudinary Media Storage
-CLOUDINARY_CLOUD_NAME=your_cloud_name
-CLOUDINARY_API_KEY=123456789012345
-CLOUDINARY_API_SECRET=your_api_secret
+| Method | Endpoint | Description | Auth |
+|--------|----------|-------------|------|
+| `GET` | `/videos` | List all videos (paginated) | No |
+| `GET` | `/videos/:videoId` | Get video by ID | No |
+| `POST` | `/videos` | Upload new video | Yes |
+| `PATCH` | `/videos/:videoId` | Update video | Yes |
+| `DELETE` | `/videos/:videoId` | Delete video | Yes |
 
-# Email Service (Resend/SMTP)
-EMAIL_HOST=smtp.resend.com
-EMAIL_PORT=587
-EMAIL_USER=resend
-EMAIL_PASSWORD=re_xxxxxxxxxxxx
+### Comments
 
-# Google OAuth
-GOOGLE_CLIENT_ID=your-client-id.apps.googleusercontent.com
-GOOGLE_CLIENT_SECRET=GOCSPX-xxxxxxxxxxxx
-GOOGLE_REDIRECT_URI=http://localhost:5173/oauth/callback
+| Method | Endpoint | Description | Auth |
+|--------|----------|-------------|------|
+| `GET` | `/comments/:videoId` | Get video comments | No |
+| `POST` | `/comments/:videoId` | Add comment | Yes |
+| `DELETE` | `/comments/c/:commentId` | Delete comment | Yes |
+
+### Likes
+
+| Method | Endpoint | Description | Auth |
+|--------|----------|-------------|------|
+| `POST` | `/likes/toggle/v/:videoId` | Toggle video like | Yes |
+| `GET` | `/likes/videos` | Get liked videos | Yes |
+
+### Subscriptions
+
+| Method | Endpoint | Description | Auth |
+|--------|----------|-------------|------|
+| `POST` | `/subscriptions/c/:channelId` | Toggle subscription | Yes |
+| `GET` | `/subscriptions/c/:channelId` | Get channel subscribers | No |
+| `GET` | `/subscriptions/u/:subscriberId` | Get subscribed channels | No |
+
+### Playlists
+
+| Method | Endpoint | Description | Auth |
+|--------|----------|-------------|------|
+| `GET` | `/playlist/user/:userId` | Get user's playlists | No |
+| `GET` | `/playlist/:playlistId` | Get playlist by ID | No |
+| `POST` | `/playlist` | Create playlist | Yes |
+| `PATCH` | `/playlist/:playlistId` | Update playlist | Yes |
+| `DELETE` | `/playlist/:playlistId` | Delete playlist | Yes |
+| `PATCH` | `/playlist/add/:videoId/:playlistId` | Add video to playlist | Yes |
+| `PATCH` | `/playlist/remove/:videoId/:playlistId` | Remove video from playlist | Yes |
+
+### Dashboard
+
+| Method | Endpoint | Description | Auth |
+|--------|----------|-------------|------|
+| `GET` | `/dashboard/stats` | Get channel stats | Yes |
+| `GET` | `/dashboard/videos` | Get channel videos | Yes |
+
+### Response Format
+
+**Success:**
+```json
+{
+    "statusCode": 200,
+    "data": { "..." },
+    "message": "Operation successful",
+    "success": true
+}
 ```
 
-### Frontend Environment Configuration
-
-Create `frontend/.env`:
-
-```env
-# API Configuration
-VITE_API_BASE_URL=http://localhost:8000/api/v1
-
-# Google OAuth
-VITE_GOOGLE_CLIENT_ID=your-client-id.apps.googleusercontent.com
+**Error:**
+```json
+{
+    "statusCode": 400,
+    "message": "Validation failed",
+    "errors": ["Email is required"],
+    "success": false
+}
 ```
-
-> ⚠️ **Security Note**: Never commit `.env` files to version control. Both directories include `.gitignore` entries for these files.
 
 ---
 
-## 3. Core User Workflows
+## 🔐 Authentication Flows
 
-### 3.1 Standard Registration and Login
+### JWT Token Flow
 
-The platform uses **JWT-based authentication** with httpOnly cookies for security.
+```mermaid
+sequenceDiagram
+    participant Client
+    participant Server
+    participant DB
+
+    Client->>Server: POST /auth/login {email, password}
+    Server->>DB: Find user, verify password (bcrypt)
+    Server->>Server: Generate access token (1d) + refresh token (10d)
+    Server-->>Client: Set httpOnly cookies + return user data
+
+    Note over Client: Subsequent API requests
+
+    Client->>Server: GET /videos (with cookies)
+    Server->>Server: Verify access token from cookie
+    Server-->>Client: 200 OK + data
+
+    Note over Client: Access token expires
+
+    Client->>Server: GET /videos → 401 Unauthorized
+    Client->>Server: POST /auth/refresh-token (refresh cookie)
+    Server->>DB: Validate refresh token
+    Server->>Server: Issue new access + refresh tokens
+    Server-->>Client: Set new cookies
+    Client->>Server: Retry original request
+    Server-->>Client: 200 OK + data
+```
+
+### Two-Step Email Registration
 
 ```mermaid
 sequenceDiagram
     participant User
     participant Frontend
     participant Backend
-    participant MongoDB
+    participant Email
+    participant DB
 
-    User->>Frontend: Enter email & password
-    Frontend->>Backend: POST /auth/login {email, password}
-    Backend->>MongoDB: Find user by email
-    MongoDB-->>Backend: User document
-    Backend->>Backend: Verify password (bcrypt)
-    Backend->>Backend: Generate access + refresh tokens
-    Backend-->>Frontend: Set httpOnly cookies + user data
-    Frontend->>Frontend: Store user in Redux
-    Frontend-->>User: Redirect to dashboard
-```
-
-**Authentication Flow Details:**
-- **Access Token**: Short-lived (1 day), used for API requests
-- **Refresh Token**: Long-lived (10 days), used to obtain new access tokens
-- **Token Storage**: httpOnly cookies prevent XSS attacks
-- **Auto-refresh**: Frontend interceptor refreshes expired tokens automatically
-
----
-
-### 3.2 Two-Step Email Registration Flow
-
-New users register through a **two-step email verification process**:
-
-```mermaid
-sequenceDiagram
-    participant User
-    participant Frontend
-    participant Backend
-    participant Resend
-    participant MongoDB
-
-    User->>Frontend: Enter email only
+    User->>Frontend: Enter email
     Frontend->>Backend: POST /users/initiate-register {email}
-    Backend->>MongoDB: Check email not registered
-    Backend->>Backend: Generate verification token
-    Backend->>MongoDB: Store in PendingEmail collection
-    Backend->>Resend: Send verification email
-    Resend-->>User: Email with verification link
-    Backend-->>Frontend: 200 "Check your inbox"
-    
-    Note over User: User clicks email link
-    
-    User->>Frontend: GET /register/:token
-    Frontend-->>User: Show full registration form
-    User->>Frontend: Fill username, password, avatar
-    Frontend->>Backend: POST /users/register {token, formData}
-    Backend->>MongoDB: Validate token in PendingEmail
-    Backend->>Backend: Upload avatar to Cloudinary
-    Backend->>MongoDB: Create user, delete PendingEmail
-    Backend-->>Frontend: 201 "Account created"
+    Backend->>DB: Check email not taken
+    Backend->>DB: Store PendingEmail with verification token
+    Backend->>Email: Send verification link
+    Backend-->>Frontend: "Check your inbox"
+
+    Note over User: Clicks email link
+
+    User->>Frontend: /register/:token
+    User->>Frontend: Fill username, password, upload avatar
+    Frontend->>Backend: POST /users/register (multipart form)
+    Backend->>DB: Validate token, upload avatar to Cloudinary
+    Backend->>DB: Create user, delete PendingEmail
+    Backend-->>Frontend: "Account created"
     Frontend-->>User: Redirect to login
 ```
 
----
-
-### 3.3 Password Reset via Token
-
-```mermaid
-sequenceDiagram
-    participant User
-    participant Frontend
-    participant Backend
-    participant Resend
-    participant MongoDB
-
-    User->>Frontend: Click "Forgot Password"
-    User->>Frontend: Enter email address
-    Frontend->>Backend: POST /users/forgot-password {email}
-    Backend->>MongoDB: Find user, generate reset token
-    Backend->>MongoDB: Store token with 1hr expiry
-    Backend->>Resend: Send reset email
-    Backend-->>Frontend: 200 "Check your email"
-
-    Note over User: User clicks reset link
-
-    User->>Frontend: GET /reset-password/:token
-    Frontend->>Backend: GET /users/verify-reset-token/:token
-    Backend->>MongoDB: Validate token exists & not expired
-    Backend-->>Frontend: 200 "Token valid"
-    User->>Frontend: Enter new password
-    Frontend->>Backend: POST /users/reset-password {token, password}
-    Backend->>MongoDB: Update password, delete token
-    Backend-->>Frontend: 200 "Password updated"
-    Frontend-->>User: Redirect to login
-```
-
----
-
-### 3.4 Google OAuth Flow (PKCE)
-
-VidPlay implements **OAuth 2.0 with PKCE** for enhanced security:
+### Google OAuth (PKCE)
 
 ```mermaid
 sequenceDiagram
@@ -282,611 +498,211 @@ sequenceDiagram
     participant Frontend
     participant Google
     participant Backend
-    participant MongoDB
+    participant DB
 
     User->>Frontend: Click "Sign in with Google"
-    Frontend->>Frontend: Generate code_verifier (random 128 chars)
-    Frontend->>Frontend: Create code_challenge = SHA256(verifier)
+    Frontend->>Frontend: Generate code_verifier + code_challenge (SHA256)
     Frontend->>Frontend: Store code_verifier in sessionStorage
     Frontend->>Google: Redirect with code_challenge
-    
+
     Note over User,Google: User authorizes VidPlay
 
     Google-->>Frontend: Redirect to /oauth/callback?code=xxx
-    Frontend->>Frontend: Retrieve code_verifier
     Frontend->>Backend: POST /auth/google {code, code_verifier}
     Backend->>Google: Exchange code + verifier for tokens
     Google-->>Backend: {access_token, id_token}
-    Backend->>Backend: Decode id_token for profile
-    Backend->>MongoDB: Find or create user
+    Backend->>DB: Find or create user from profile
     Backend->>Backend: Generate JWT tokens
-    Backend-->>Frontend: Set httpOnly cookies + user
-    Frontend-->>User: Redirect to dashboard
+    Backend-->>Frontend: Set httpOnly cookies + user data
+    Frontend-->>User: Redirect to homepage
 ```
 
-**Why PKCE?**
-- Prevents authorization code interception attacks
-- No client secret exposed to frontend
-- Industry-standard for SPAs and mobile apps
+> **Why PKCE?** — Prevents authorization code interception. No client secret exposed to the browser. Industry standard for SPAs.
 
 ---
 
-### 3.5 Video Upload & Publishing Flow
+## 🎨 Frontend Deep Dive
 
-```mermaid
-sequenceDiagram
-    participant User
-    participant Frontend
-    participant Backend
-    participant Cloudinary
-    participant MongoDB
+### Routing
 
-    User->>Frontend: Navigate to /upload
-    User->>Frontend: Select video file (MP4, WebM, etc.)
-    User->>Frontend: Select thumbnail image
-    User->>Frontend: Enter title, description, publish status
-    Frontend->>Backend: POST /videos (multipart/form-data)
-    
-    Backend->>Backend: Validate file types & sizes
-    Backend->>Cloudinary: Upload video (resource_type: video)
-    Cloudinary-->>Backend: {url, duration, public_id}
-    Backend->>Cloudinary: Upload thumbnail (resource_type: image)
-    Cloudinary-->>Backend: {url, public_id}
-    
-    Backend->>MongoDB: Create video document
-    MongoDB-->>Backend: Saved video
-    Backend-->>Frontend: 201 {video data}
-    Frontend-->>User: Success toast, redirect to video
-```
+| Route | Page | Access | Description |
+|-------|------|--------|-------------|
+| `/` | Home | Public | Browse recommended videos |
+| `/search` | Search | Public | Search results |
+| `/video/:videoId` | Video | Public | Watch video, comments, related |
+| `/channel/:username` | Channel | Public | Creator's public profile |
+| `/login` | Login | Guest only | Sign in |
+| `/initiate-register` | Register Step 1 | Guest only | Email verification |
+| `/register/:token` | Register Step 2 | Guest only | Complete registration |
+| `/forgot-password` | Forgot Password | Guest only | Request reset email |
+| `/reset-password` | Reset Password | Guest only | Set new password |
+| `/oauth/callback` | OAuth | Guest only | Google callback handler |
+| `/upload` | Upload | 🔒 Auth | Upload new video |
+| `/video/:videoId/edit` | Edit Video | 🔒 Auth | Edit video details |
+| `/dashboard` | Dashboard | 🔒 Auth | Creator analytics |
+| `/playlists` | Playlists | 🔒 Auth | Manage playlists |
+| `/playlist/:playlistId` | Playlist Detail | 🔒 Auth | View playlist videos |
+| `/history` | History | 🔒 Auth | Watch history |
+| `/liked-videos` | Liked Videos | 🔒 Auth | Liked videos list |
+| `/subscriptions` | Subscriptions | 🔒 Auth | Subscribed channels |
+| `/settings` | Settings | 🔒 Auth | Profile & password |
 
-**Supported Formats:**
-- Video: MP4, WebM, MOV, AVI
-- Thumbnail: JPG, PNG, WebP
-- Max file size: 100MB (video), 5MB (thumbnail)
+### Video Player Features
 
----
+The custom-built `<VideoPlayer>` component includes:
 
-### 3.6 Video Playback, Likes, Comments & Subscriptions
+- ▶️ Play/pause with center overlay and keyboard (`Space`, `K`)
+- ⏩ Skip forward/backward (arrow keys, `J`/`L`, double-tap on mobile)
+- 🔊 Volume control with slider (desktop) and toggle (mobile)
+- 📊 Progress bar with buffered indicator and seek preview tooltip
+- ⚙️ Settings menu — playback speed (0.25x–2x) and quality (Auto, 1080p–360p)
+- 📺 Fullscreen with landscape lock on mobile devices
+- 📱 Mobile gestures: double-tap to skip, long-press for 2x speed
+- ⌨️ Full keyboard shortcuts (`F` fullscreen, `M` mute, `0-9` seek %)
 
-```mermaid
-sequenceDiagram
-    participant User
-    participant Frontend
-    participant Backend
-    participant MongoDB
+### State Management
 
-    User->>Frontend: Click video thumbnail
-    Frontend->>Backend: GET /videos/:videoId
-    Backend->>MongoDB: Fetch video + owner details
-    Backend->>MongoDB: Increment view count
-    Backend->>MongoDB: Add to user's watch history
-    Backend-->>Frontend: {video, owner, isLiked, isSubscribed}
-    Frontend-->>User: Render video player
+| Redux Slice | Purpose | Key Actions |
+|-------------|---------|-------------|
+| `authSlice` | User auth state | `getCurrentUser`, `setUser`, `logout` |
+| `videoSlice` | Videos & current video | `fetchVideos`, `fetchVideoById` |
+| `playlistSlice` | User playlists | `fetchUserPlaylists`, `createPlaylist` |
+| `subscriptionSlice` | Subscribed channels | `fetchSubscriptions`, `toggleSubscription` |
 
-    rect rgb(40, 40, 40)
-        Note over User,MongoDB: Social Interactions
-        
-        User->>Frontend: Click ❤️ Like
-        Frontend->>Backend: POST /likes/toggle/v/:videoId
-        Backend->>MongoDB: Toggle like document
-        Backend-->>Frontend: {isLiked: true, totalLikes: 142}
+**When to use Redux vs Local State:**
 
-        User->>Frontend: Type comment & submit
-        Frontend->>Backend: POST /comments/:videoId {content}
-        Backend->>MongoDB: Create comment
-        Backend-->>Frontend: {comment with author}
-
-        User->>Frontend: Click Subscribe
-        Frontend->>Backend: POST /subscriptions/c/:channelId
-        Backend->>MongoDB: Create subscription
-        Backend-->>Frontend: {subscribed: true, count: 1.2K}
-    end
-```
+| Redux (Global) | Local State |
+|----------------|-------------|
+| Auth / user data | Form inputs |
+| Video lists | Modal open/close |
+| Playlists | UI toggles |
+| Subscriptions | Loading spinners |
 
 ---
 
-## 4. Backend API Server (Node.js + Express + MongoDB)
-
-### Project Structure
-
-```
-backend/
-├── src/
-│   ├── index.js              # Entry point
-│   ├── app.js                # Express app setup
-│   ├── constants.js          # App constants
-│   ├── auth/                 # OAuth configuration
-│   │   └── passport.js       # Google OAuth setup
-│   ├── controllers/          # Route handlers
-│   │   ├── auth.controller.js
-│   │   ├── user.controller.js
-│   │   ├── video.controller.js
-│   │   ├── like.controller.js
-│   │   ├── comment.controller.js
-│   │   ├── playlist.controller.js
-│   │   ├── subscription.controller.js
-│   │   └── dashboard.controller.js
-│   ├── models/               # Mongoose schemas
-│   │   ├── user.model.js
-│   │   ├── video.model.js
-│   │   ├── like.model.js
-│   │   ├── comment.model.js
-│   │   ├── playlist.model.js
-│   │   ├── subscription.model.js
-│   │   ├── token.model.js
-│   │   └── pendingEmail.model.js
-│   ├── routes/               # API routes
-│   ├── middlewares/          # Custom middleware
-│   │   ├── auth.middleware.js
-│   │   ├── multer.middleware.js
-│   │   └── error.middleware.js
-│   ├── utils/                # Utility functions
-│   │   ├── ApiError.js
-│   │   ├── ApiResponse.js
-│   │   ├── asyncHandler.js
-│   │   ├── cloudinary.util.js
-│   │   └── email.util.js
-│   └── db/
-│       └── index.js          # MongoDB connection
-└── package.json
-```
-
-### Authentication & User Management
-
-**Key Endpoints:**
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/api/v1/users/initiate-register` | Start email verification |
-| POST | `/api/v1/users/register` | Complete registration |
-| POST | `/api/v1/auth/login` | Login with credentials |
-| POST | `/api/v1/auth/logout` | Logout (clear cookies) |
-| POST | `/api/v1/auth/refresh-token` | Refresh access token |
-| POST | `/api/v1/auth/google` | Google OAuth callback |
-| POST | `/api/v1/users/forgot-password` | Request password reset |
-| POST | `/api/v1/users/reset-password` | Reset with token |
-
-### Video Management
-
-**CRUD Operations:**
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/v1/videos` | List videos (paginated) |
-| GET | `/api/v1/videos/:videoId` | Get video details |
-| POST | `/api/v1/videos` | Upload new video |
-| PATCH | `/api/v1/videos/:videoId` | Update video metadata |
-| DELETE | `/api/v1/videos/:videoId` | Delete video |
-| GET | `/api/v1/videos/search` | Search videos by query |
-
-### Playlists
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/v1/playlists/user` | Get user's playlists |
-| POST | `/api/v1/playlists` | Create playlist |
-| PATCH | `/api/v1/playlists/:id` | Update playlist |
-| DELETE | `/api/v1/playlists/:id` | Delete playlist |
-| PATCH | `/api/v1/playlists/add/:videoId/:playlistId` | Add video |
-| PATCH | `/api/v1/playlists/remove/:videoId/:playlistId` | Remove video |
-
-### Express App Initialization
-
-```javascript
-// app.js - Middleware Setup
-import express from "express";
-import cors from "cors";
-import cookieParser from "cookie-parser";
-import compression from "compression";
-
-const app = express();
-
-// CORS - Allow frontend origin with credentials
-app.use(cors({
-    origin: process.env.CORS_ORIGIN,
-    credentials: true
-}));
-
-// Parse JSON bodies (limit: 16kb)
-app.use(express.json({ limit: "16kb" }));
-
-// Parse URL-encoded bodies
-app.use(express.urlencoded({ extended: true, limit: "16kb" }));
-
-// Static files
-app.use(express.static("public"));
-
-// Cookie parser for JWT in cookies
-app.use(cookieParser());
-
-// Gzip compression for responses
-app.use(compression());
-
-// Routes
-app.use("/api/v1/users", userRoutes);
-app.use("/api/v1/auth", authRoutes);
-app.use("/api/v1/videos", videoRoutes);
-// ... more routes
-```
-
-### Standardized API Responses
-
-**Success Response (`ApiResponse`):**
-```javascript
-{
-    "statusCode": 200,
-    "data": { /* payload */ },
-    "message": "Operation successful",
-    "success": true
-}
-```
-
-**Error Response (`ApiError`):**
-```javascript
-{
-    "statusCode": 400,
-    "message": "Validation failed",
-    "errors": ["Email is required", "Password too short"],
-    "success": false
-}
-```
-
----
-
-## 5. Frontend Application (React + Vite)
-
-### Frontend Structure
-
-```
-frontend/
-├── src/
-│   ├── main.jsx              # React entry point
-│   ├── App.jsx               # Root component + routing
-│   ├── index.css             # Global styles (Tailwind)
-│   ├── api/                  # Axios instance
-│   │   └── axios.js          # Configured client
-│   ├── components/           # Reusable UI components
-│   │   ├── Button.jsx
-│   │   ├── Input.jsx
-│   │   ├── VideoCard.jsx
-│   │   ├── CommentSection.jsx
-│   │   ├── Sidebar.jsx
-│   │   └── ...
-│   ├── layouts/              # Page layouts
-│   │   ├── MainLayout.jsx
-│   │   └── AuthLayout.jsx
-│   ├── pages/                # Route pages
-│   │   ├── HomePage.jsx
-│   │   ├── LoginPage.jsx
-│   │   ├── VideoPage.jsx
-│   │   ├── DashboardPage.jsx
-│   │   └── ...
-│   ├── services/             # API service functions
-│   │   ├── auth.service.js
-│   │   ├── video.service.js
-│   │   ├── playlist.service.js
-│   │   └── ...
-│   ├── store/                # Redux state
-│   │   ├── store.js
-│   │   └── slices/
-│   │       ├── authSlice.js
-│   │       └── uiSlice.js
-│   └── utils/                # Helper functions
-│       ├── formatDuration.js
-│       └── pkce.js
-├── public/
-├── index.html
-├── vite.config.js
-└── tailwind.config.js
-```
-
-### Routing and Pages
-
-| Route | Page | Access |
-|-------|------|--------|
-| `/` | HomePage | Public |
-| `/login` | LoginPage | Guest only |
-| `/register/:token?` | RegisterPage | Guest only |
-| `/watch/:videoId` | VideoPage | Public |
-| `/channel/:username` | ChannelPage | Public |
-| `/dashboard` | DashboardPage | Auth required |
-| `/upload` | UploadPage | Auth required |
-| `/playlists` | PlaylistPage | Auth required |
-| `/settings` | SettingsPage | Auth required |
-| `/history` | HistoryPage | Auth required |
-| `/subscriptions` | SubscriptionsPage | Auth required |
-
-### Google Login UI Component
-
-```jsx
-// components/GoogleLoginButton.jsx
-import { FcGoogle } from "react-icons/fc";
-import { generatePKCE, buildGoogleAuthURL } from "../utils/pkce";
-
-const GoogleLoginButton = () => {
-    const handleGoogleLogin = async () => {
-        // Generate PKCE parameters
-        const { codeVerifier, codeChallenge } = await generatePKCE();
-        
-        // Store verifier for callback
-        sessionStorage.setItem("code_verifier", codeVerifier);
-        
-        // Redirect to Google
-        const authURL = buildGoogleAuthURL(codeChallenge);
-        window.location.href = authURL;
-    };
-
-    return (
-        <button
-            onClick={handleGoogleLogin}
-            className="flex items-center gap-3 w-full px-4 py-3 
-                       border border-gray-600 rounded-lg
-                       hover:bg-gray-800 transition-colors"
-        >
-            <FcGoogle size={24} />
-            <span>Continue with Google</span>
-        </button>
-    );
-};
-```
-
-### State Management with Redux Toolkit
-
-```javascript
-// store/slices/authSlice.js
-import { createSlice } from "@reduxjs/toolkit";
-
-const authSlice = createSlice({
-    name: "auth",
-    initialState: {
-        user: null,
-        isAuthenticated: false,
-        isLoading: true,
-    },
-    reducers: {
-        setUser: (state, action) => {
-            state.user = action.payload;
-            state.isAuthenticated = !!action.payload;
-            state.isLoading = false;
-        },
-        logout: (state) => {
-            state.user = null;
-            state.isAuthenticated = false;
-        },
-    },
-});
-
-export const { setUser, logout } = authSlice.actions;
-export default authSlice.reducer;
-```
-
-### Frontend Service Layer (API Clients)
-
-```javascript
-// services/video.service.js
-import api from "../api/axios";
-
-export const videoService = {
-    getAll: (page = 1, limit = 12) => 
-        api.get(`/videos?page=${page}&limit=${limit}`),
-    
-    getById: (videoId) => 
-        api.get(`/videos/${videoId}`),
-    
-    upload: (formData) => 
-        api.post("/videos", formData, {
-            headers: { "Content-Type": "multipart/form-data" }
-        }),
-    
-    update: (videoId, data) => 
-        api.patch(`/videos/${videoId}`, data),
-    
-    delete: (videoId) => 
-        api.delete(`/videos/${videoId}`),
-    
-    search: (query) => 
-        api.get(`/videos/search?q=${encodeURIComponent(query)}`),
-};
-```
-
-### Working with Playlists
-
-```mermaid
-sequenceDiagram
-    participant User
-    participant PlaylistModal
-    participant PlaylistService
-    participant Backend
-
-    User->>PlaylistModal: Click "Save" on video
-    PlaylistModal->>PlaylistService: getUserPlaylists()
-    PlaylistService->>Backend: GET /playlists/user
-    Backend-->>PlaylistModal: [playlist1, playlist2, ...]
-    PlaylistModal-->>User: Show playlist selection
-
-    alt Create New
-        User->>PlaylistModal: Enter name, click "Create"
-        PlaylistModal->>Backend: POST /playlists {name, videoId}
-        Backend-->>PlaylistModal: {newPlaylist}
-    else Add to Existing
-        User->>PlaylistModal: Select existing playlist
-        PlaylistModal->>Backend: PATCH /playlists/add/:videoId/:playlistId
-        Backend-->>PlaylistModal: {updatedPlaylist}
-    end
-
-    PlaylistModal-->>User: Success feedback
-```
-
----
-
-## 6. Infrastructure Utilities & Performance
-
-### Cloudinary Media Utilities
-
-VidPlay uses Cloudinary for all media storage and transformations:
-
-```javascript
-// utils/cloudinary.util.js
-import { v2 as cloudinary } from "cloudinary";
-
-// Configure Cloudinary
-cloudinary.config({
-    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-    api_key: process.env.CLOUDINARY_API_KEY,
-    api_secret: process.env.CLOUDINARY_API_SECRET
-});
-
-// Upload file to Cloudinary
-export const uploadOnCloudinary = async (localFilePath, resourceType = "auto") => {
-    if (!localFilePath) return null;
-    
-    const response = await cloudinary.uploader.upload(localFilePath, {
-        resource_type: resourceType,
-        folder: "vidplay"
-    });
-    
-    // Clean up local file
-    fs.unlinkSync(localFilePath);
-    
-    return response;
-};
-
-// Delete from Cloudinary
-export const deleteFromCloudinary = async (publicId, resourceType = "image") => {
-    await cloudinary.uploader.destroy(publicId, { resource_type: resourceType });
-};
-```
-
-### Email Utility
-
-Transactional emails for verification and password reset:
-
-```javascript
-// utils/email.util.js
-import nodemailer from "nodemailer";
-
-const transporter = nodemailer.createTransport({
-    host: process.env.EMAIL_HOST,
-    port: process.env.EMAIL_PORT,
-    auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASSWORD
-    }
-});
-
-export const sendVerificationEmail = async (email, token) => {
-    const verificationUrl = `${process.env.CORS_ORIGIN}/register/${token}`;
-    
-    await transporter.sendMail({
-        from: '"VidPlay" <noreply@vidplay.com>',
-        to: email,
-        subject: "Verify your VidPlay account",
-        html: `
-            <h1>Welcome to VidPlay!</h1>
-            <p>Click below to complete your registration:</p>
-            <a href="${verificationUrl}">Verify Email</a>
-            <p>This link expires in 24 hours.</p>
-        `
-    });
-};
-
-export const sendPasswordResetEmail = async (email, token) => {
-    const resetUrl = `${process.env.CORS_ORIGIN}/reset-password/${token}`;
-    
-    await transporter.sendMail({
-        from: '"VidPlay" <noreply@vidplay.com>',
-        to: email,
-        subject: "Reset your VidPlay password",
-        html: `
-            <h1>Password Reset Request</h1>
-            <p>Click below to reset your password:</p>
-            <a href="${resetUrl}">Reset Password</a>
-            <p>This link expires in 1 hour.</p>
-        `
-    });
-};
-```
-
-### Performance Optimizations
+## ⚡ Performance & Optimizations
 
 | Optimization | Implementation |
 |--------------|----------------|
-| **Response Compression** | Gzip via `compression` middleware |
-| **Database Indexing** | Indexes on `email`, `username`, `videoId` |
-| **Pagination** | `mongoose-aggregate-paginate-v2` for video lists |
-| **Lazy Loading** | React lazy imports for route components |
-| **Image Optimization** | Cloudinary auto-format and quality |
+| **Code Splitting** | Lazy-loaded pages with `React.lazy()` + `Suspense` |
+| **Response Compression** | Gzip via `compression` middleware (level 6, >1KB threshold) |
+| **Image Optimization** | Cloudinary auto-format, quality, and responsive transforms |
+| **Static Caching** | 1-day `maxAge` + ETags on static assets |
+| **Pagination** | `mongoose-aggregate-paginate-v2` for efficient listing |
+| **Skeleton Loading** | Custom skeleton components for perceived performance |
+| **Performance Monitoring** | Custom middleware tracking response times |
+| **Keep-Alive** | Production self-ping to prevent cold starts on free hosting |
+| **Proxy Trust** | `trust proxy` enabled for Render/Vercel deployments |
 
 ---
 
-## 7. Troubleshooting & Common Issues
+## 🚢 Deployment
 
-### Authentication Problems
+### Frontend — Vercel
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| "Token expired" error | Access token expired | Frontend auto-refreshes; if persists, re-login |
-| Login works but redirects to login | Cookies not set | Check `credentials: true` in CORS and axios |
-| Google OAuth fails | Invalid redirect URI | Ensure URI matches Google Console exactly |
-| "Unauthorized" on all requests | Missing auth middleware | Verify route has `verifyJWT` middleware |
+The frontend is deployed on Vercel with SPA routing support:
 
-**Debug Tips:**
-```javascript
-// Check if cookies are being set (browser console)
-document.cookie  // Should show access/refresh tokens
-
-// Check axios is sending credentials
-// In api/axios.js:
-axios.create({ withCredentials: true })
+```json
+// vercel.json
+{
+  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
+}
 ```
 
-### Email & Password Reset Issues
+```bash
+# Build for production
+cd frontend
+npm run build
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| Email not received | SMTP config error | Verify EMAIL_* env variables |
-| "Invalid token" on reset | Token expired/used | Request new reset email |
-| Token link doesn't work | Wrong frontend URL | Check `CORS_ORIGIN` in backend .env |
+# Deploy (via Vercel CLI or GitHub integration)
+vercel --prod
+```
 
-**Test Email Setup:**
+### Backend — Render / Railway
+
+```bash
+# Production start command
+cd backend
+npm start
+```
+
+**Required environment variables:** Set all variables from the [Environment Variables](#-environment-variables) section in your hosting platform's dashboard.
+
+**Important:** Update `CORS_ORIGIN` to your deployed frontend URL and `GOOGLE_REDIRECT_URI` to match.
+
+---
+
+## 🔧 Troubleshooting
+
+### Authentication Issues
+
+| Problem | Cause | Fix |
+|---------|-------|-----|
+| Login works but keeps redirecting to login | Cookies not being set | Ensure `credentials: true` in CORS config and `withCredentials: true` in Axios |
+| "Unauthorized" on all requests | Missing or expired token | Check cookie domain matches, re-login |
+| Google OAuth fails | Redirect URI mismatch | URI in Google Console must exactly match `GOOGLE_REDIRECT_URI` |
+| Token refresh loop | Invalid refresh token | Clear cookies, re-login |
+
+### Upload Issues
+
+| Problem | Cause | Fix |
+|---------|-------|-----|
+| Upload fails silently | Cloudinary credentials wrong | Verify `CLOUDINARY_*` env vars |
+| Large file fails | Size limit exceeded | Video max: 100MB, Thumbnail max: 5MB |
+| "Unsupported file type" | Wrong format | Use MP4, WebM, MOV (video) or JPG, PNG, WebP (image) |
+
+### Email Issues
+
+| Problem | Cause | Fix |
+|---------|-------|-----|
+| Verification email not received | SMTP misconfigured | Test connection: see below |
+| "Invalid token" on registration | Token expired (24hr) | Request new verification email |
+| Password reset link broken | Wrong `CORS_ORIGIN` | Ensure it matches your frontend URL |
+
 ```bash
 # Test SMTP connection
 node -e "
-const nodemailer = require('nodemailer');
-const t = nodemailer.createTransport({
-  host: 'smtp.resend.com',
-  port: 587,
-  auth: { user: 'resend', pass: 'YOUR_KEY' }
-});
-t.verify().then(() => console.log('SMTP OK')).catch(console.error);
+import('nodemailer').then(nm => {
+  const t = nm.default.createTransport({
+    host: 'smtp.resend.com', port: 587,
+    auth: { user: 'resend', pass: 'YOUR_KEY' }
+  });
+  t.verify().then(() => console.log('✅ SMTP OK')).catch(console.error);
+})
 "
 ```
 
-### API & Network Issues
-
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| CORS errors | Origin mismatch | Add frontend URL to `CORS_ORIGIN` |
-| 500 Internal Server Error | Unhandled exception | Check backend console for stack trace |
-| Database connection timeout | MongoDB unreachable | Verify `MONGODB_URI`, check network/Atlas IP whitelist |
-| File upload fails | Multer/Cloudinary error | Check file size limits, Cloudinary credentials |
-
-**Common npm Commands:**
+### General
 
 ```bash
-# Clear npm cache
-npm cache clean --force
-
-# Reinstall dependencies
+# Clear everything and reinstall
 rm -rf node_modules package-lock.json
 npm install
 
 # Check for outdated packages
 npm outdated
 
-# Run with debug logging
+# Run with verbose logging
 DEBUG=* npm run dev
 ```
+
+---
+
+## 🤝 Contributing
+
+1. **Fork** the repository
+2. **Create** a feature branch: `git checkout -b feature/amazing-feature`
+3. **Commit** your changes: `git commit -m 'Add amazing feature'`
+4. **Push** to the branch: `git push origin feature/amazing-feature`
+5. **Open** a Pull Request
+
+### Guidelines
+
+- Follow existing code patterns and project structure
+- Keep components small and focused
+- Add proper loading and error states
+- Use meaningful commit messages
+- Test on both desktop and mobile viewports
 
 ---
 
@@ -894,8 +710,10 @@ DEBUG=* npm run dev
 
 **Nikunj Makwana**
 
+- 🌐 [Live Demo](https://vidplay-ecru.vercel.app)
+
 ---
 
 ## 📄 License
 
-ISC License - See [LICENSE](LICENSE) for details.
+This project is licensed under the **ISC License** — see the [LICENSE](LICENSE) file for details.

@@ -1,152 +1,179 @@
-# VidPlay Frontend
+# 🎬 VidPlay — Frontend
 
-A production-ready React frontend for the VidPlay video sharing platform.
+> Modern, responsive React frontend for the VidPlay video sharing platform.  
+> **Live:** [vidplay-ecru.vercel.app](https://vidplay-ecru.vercel.app)
+
+---
 
 ## Tech Stack
 
-- **React 18** with Vite
-- **React Router v6** for routing
-- **Redux Toolkit** for global state management
-- **React Hook Form** for form handling
-- **Axios** for API calls
-- **Tailwind CSS** for styling
-- **React Hot Toast** for notifications
+| Technology | Version | Purpose |
+|-----------|---------|---------|
+| **React** | 18.2 | UI framework (hooks, lazy loading) |
+| **Vite** | 5.0 | Build tool & dev server |
+| **Redux Toolkit** | 2.0 | Global state management |
+| **React Router** | 6.21 | Client-side routing |
+| **React Hook Form** | 7.49 | Performant form handling |
+| **Axios** | 1.6 | HTTP client with interceptors |
+| **Tailwind CSS** | 3.4 | Utility-first styling |
+| **React Hot Toast** | 2.4 | Toast notifications |
+| **React Icons** | 5.0 | Icon library (Hi, Hi2) |
+
+---
 
 ## Project Structure
 
 ```
 src/
-├── api/                  # Axios instance and configuration
-│   └── axiosInstance.js  # Centralized axios with interceptors
+├── api/
+│   └── axiosInstance.js      # Axios with auth interceptors & token refresh
 ├── components/
-│   ├── layout/           # Layout components (Navbar, Sidebar)
-│   ├── ui/               # Reusable UI components
-│   └── video/            # Video-related components
-├── layouts/              # Page layouts
-├── pages/                # Page components (data fetching happens here)
-├── services/             # API service layer (one per feature)
+│   ├── layout/               # Navbar, Sidebar, responsive shell
+│   ├── ui/                   # Button, Input, Avatar, Modal, Skeleton, Textarea
+│   ├── video/                # VideoCard, VideoGrid, VideoListItem, VideoPlayer
+│   ├── ProtectedRoute.jsx    # Auth guard for protected routes
+│   └── index.js              # Barrel exports
+├── layouts/
+│   ├── MainLayout.jsx        # App shell (navbar + collapsible sidebar)
+│   └── AuthLayout.jsx        # Centered auth forms layout
+├── pages/                    # 20+ route pages (lazy loaded)
+│   ├── HomePage.jsx          # Browse recommended videos
+│   ├── VideoPage.jsx         # Watch video + comments + related
+│   ├── ChannelPage.jsx       # Creator's public profile
+│   ├── DashboardPage.jsx     # Creator analytics
+│   ├── UploadPage.jsx        # Upload new video
+│   ├── SearchPage.jsx        # Search results
+│   ├── PlaylistPage.jsx      # Manage playlists
+│   ├── SettingsPage.jsx      # Profile & password settings
+│   └── ...                   # History, Liked, Subscriptions, Auth pages
+├── services/                 # API service layer (1 file per feature)
+│   ├── authService.js
+│   ├── videoService.js
+│   ├── commentService.js
+│   ├── likeService.js
+│   ├── playlistService.js
+│   ├── subscriptionService.js
+│   ├── dashboardService.js
+│   └── index.js              # Barrel exports
 ├── store/
-│   ├── slices/           # Redux slices
-│   └── store.js          # Redux store configuration
-└── utils/                # Utility functions
+│   ├── store.js              # Redux store configuration
+│   └── slices/               # authSlice, videoSlice, playlistSlice, subscriptionSlice
+└── utils/                    # formatDate, formatNumber, formatDuration, optimizeImage
 ```
+
+---
 
 ## Architecture Principles
 
-1. **Backend is source of truth** - No mocked data
-2. **Centralized API layer** - All calls go through axios instance
-3. **Redux for server state** - Auth, videos, playlists, subscriptions
-4. **React Hook Form for forms** - Login, register, upload
-5. **Presentational components** - Pages handle data fetching
-6. **No business logic in JSX**
-7. **Proper loading & error states**
+1. **Backend is the source of truth** — no mocked data, all state from API
+2. **Centralized API layer** — all HTTP calls go through the Axios instance with interceptors
+3. **Redux for server state** — auth, videos, playlists, subscriptions
+4. **Local state for UI** — form inputs, modals, toggles, loading spinners
+5. **Code splitting** — all pages lazy-loaded with `React.lazy()` + `Suspense`
+6. **Presentational separation** — pages handle data fetching, components handle rendering
+7. **Proper loading & error states** — skeleton loaders and toast notifications everywhere
+
+---
 
 ## Getting Started
 
-1. Install dependencies:
 ```bash
+# Install dependencies
 npm install
-```
 
-2. Create `.env` file:
-```bash
+# Create env file
 cp .env.example .env
-```
+# Edit .env with your values:
+#   VITE_API_BASE_URL=http://localhost:8000/api/v1
+#   VITE_GOOGLE_CLIENT_ID=your-google-client-id
 
-3. Start development server:
-```bash
+# Start development server
 npm run dev
 ```
 
-The app will run at `http://localhost:3000`
+App runs at **http://localhost:5173** (Vite default).
 
-## Available Scripts
+---
 
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm run preview` - Preview production build
-- `npm run lint` - Run ESLint
+## Scripts
 
-## API Endpoints
+| Command | Description |
+|---------|-------------|
+| `npm run dev` | Start dev server with HMR |
+| `npm run build` | Production build to `dist/` |
+| `npm run preview` | Preview production build locally |
+| `npm run lint` | Run ESLint |
 
-The frontend expects the backend to be running at `http://localhost:8000/api/v1`
+---
 
-### Authentication
-- `POST /users/register` - Register new user
-- `POST /users/login` - Login
-- `POST /users/logout` - Logout
-- `GET /users/current-user` - Get current user
-- `POST /users/refresh-token` - Refresh access token
+## Routing
 
-### Videos
-- `GET /videos` - Get all videos
-- `GET /videos/:id` - Get video by ID
-- `POST /videos` - Upload video
-- `PATCH /videos/:id` - Update video
-- `DELETE /videos/:id` - Delete video
+| Route | Page | Access |
+|-------|------|--------|
+| `/` | Home | Public |
+| `/search` | Search results | Public |
+| `/video/:videoId` | Video player | Public |
+| `/channel/:username` | Channel profile | Public |
+| `/login` | Login | Guest only |
+| `/initiate-register` | Enter email | Guest only |
+| `/register/:token` | Complete registration | Guest only |
+| `/forgot-password` | Request reset email | Guest only |
+| `/reset-password` | Set new password | Guest only |
+| `/oauth/callback` | Google OAuth handler | Guest only |
+| `/upload` | Upload video | Auth required |
+| `/video/:videoId/edit` | Edit video | Auth required |
+| `/dashboard` | Creator analytics | Auth required |
+| `/playlists` | Manage playlists | Auth required |
+| `/playlist/:playlistId` | Playlist detail | Auth required |
+| `/history` | Watch history | Auth required |
+| `/liked-videos` | Liked videos | Auth required |
+| `/subscriptions` | Subscribed channels | Auth required |
+| `/settings` | Profile settings | Auth required |
 
-### Playlists
-- `GET /playlist/user/:userId` - Get user playlists
-- `POST /playlist` - Create playlist
-- `PATCH /playlist/:id` - Update playlist
-- `DELETE /playlist/:id` - Delete playlist
+---
 
-### Subscriptions
-- `POST /subscriptions/c/:channelId` - Toggle subscription
-- `GET /subscriptions/c/:channelId` - Get subscribed channels
+## Key Features
 
-### Comments
-- `GET /comments/:videoId` - Get video comments
-- `POST /comments/:videoId` - Add comment
-- `DELETE /comments/c/:commentId` - Delete comment
+### Custom Video Player
+- Play/pause, skip forward/backward, volume control
+- Progress bar with buffered indicator & seek preview
+- Settings menu: playback speed (0.25x–2x), quality (Auto to 360p)
+- Fullscreen with landscape orientation lock on mobile
+- Mobile: double-tap to skip, long-press for 2x speed
+- Keyboard shortcuts: `Space`/`K` play, `F` fullscreen, `M` mute, `J`/`L` skip, `0-9` seek
 
-### Likes
-- `POST /likes/toggle/v/:videoId` - Toggle video like
-- `GET /likes/videos` - Get liked videos
+### State Management
 
-## Features
+| Redux Slice | Data |
+|-------------|------|
+| `authSlice` | User, auth status, loading |
+| `videoSlice` | Video list, current video |
+| `playlistSlice` | User playlists |
+| `subscriptionSlice` | Subscribed channels |
 
-- ✅ User authentication (register, login, logout)
-- ✅ Video browsing and playback
-- ✅ Video upload with thumbnail
-- ✅ Channel pages with subscribe functionality
-- ✅ Playlists (create, edit, delete)
-- ✅ Comments and likes
-- ✅ Watch history
-- ✅ Search functionality
-- ✅ Dashboard with analytics
-- ✅ User settings (profile, password)
-- ✅ Tweets/Community posts
-- ✅ Responsive design
+### Error Handling
+- Axios interceptor auto-refreshes 401 tokens
+- Toast notifications for all user-facing errors
+- Skeleton loading states for perceived performance
 
-## State Management
+---
 
-### Redux Slices
+## API Configuration
 
-- **authSlice** - User authentication state
-- **videoSlice** - Videos list and current video
-- **playlistSlice** - User playlists
-- **subscriptionSlice** - Subscribed channels
+The frontend expects the backend API at the URL set in `VITE_API_BASE_URL`.
 
-### When to use Redux vs Local State
+Default: `http://localhost:8000/api/v1`
 
-| Redux (Global State) | Local State |
-|---------------------|-------------|
-| Auth/user data | Form inputs |
-| Videos list | UI toggles |
-| Playlists | Modal open/close |
-| Subscriptions | Loading states |
+All requests include `withCredentials: true` for httpOnly cookie auth.
 
-## Error Handling
+---
 
-- Global error handler in axios interceptor
-- 401 errors trigger token refresh
-- Toast notifications for user feedback
-- Proper error boundaries (can be added)
+## Deployment
 
-## Contributing
+Deployed on **Vercel** with SPA routing:
 
-1. Follow the existing code patterns
-2. Keep components small and focused
-3. Use TypeScript types where possible
-4. Write meaningful commit messages
+```json
+{
+  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
+}
+```
