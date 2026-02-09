@@ -38,15 +38,22 @@ const OAuthCallback = lazy(() => import('./pages/OAuthCallback'))
 // Each page handles its own data loading skeleton
 const PageLoader = () => (
     <div className="min-h-[50vh] flex items-center justify-center">
-        <div className="animate-pulse space-y-4 w-full max-w-4xl px-4">
-            <div className="h-8 bg-gray-700 rounded w-48" />
-            <div className="h-4 bg-gray-700 rounded w-32" />
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-8">
-                {[1, 2, 3].map((i) => (
-                    <div key={i} className="space-y-3">
-                        <div className="aspect-video bg-gray-700 rounded-xl" />
-                        <div className="h-4 bg-gray-700 rounded w-3/4" />
-                        <div className="h-3 bg-gray-700 rounded w-1/2" />
+        <div className="w-full max-w-4xl px-4 space-y-6">
+            <div className="space-y-3">
+                <div className="h-8 skeleton-shimmer rounded-lg w-48" />
+                <div className="h-4 skeleton-shimmer rounded w-32" />
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
+                {[1, 2, 3, 4, 5, 6].map((i) => (
+                    <div key={i} className="animate-fadeIn" style={{ animationDelay: `${i * 60}ms`, animationFillMode: 'both' }}>
+                        <div className="skeleton-shimmer aspect-video rounded-xl" />
+                        <div className="flex gap-3 mt-3">
+                            <div className="w-10 h-10 skeleton-shimmer rounded-full flex-shrink-0" />
+                            <div className="flex-1 space-y-2">
+                                <div className="h-4 skeleton-shimmer rounded w-full" />
+                                <div className="h-3 skeleton-shimmer rounded w-2/3" />
+                            </div>
+                        </div>
                     </div>
                 ))}
             </div>

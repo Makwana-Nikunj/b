@@ -23,15 +23,15 @@ function SubscriptionsPage() {
 
     if (isLoading) {
         return (
-            <div>
-                <div className="h-8 bg-gray-700 rounded w-36 mb-6 animate-pulse" />
+            <div className="animate-fadeIn">
+                <div className="h-8 skeleton-shimmer rounded-lg w-36 mb-6" />
                 <SubscriptionsSkeleton count={8} />
             </div>
         )
     }
 
     return (
-        <div>
+        <div className="animate-fadeIn">
             <h1 className="text-2xl font-bold text-white mb-6">Subscriptions</h1>
 
             {subscribedChannels.length === 0 ? (
@@ -42,14 +42,15 @@ function SubscriptionsPage() {
                 />
             ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                    {subscribedChannels.map((subscription) => {
+                    {subscribedChannels.map((subscription, index) => {
                         const channel = subscription.channel || subscription
                         if (!channel?.username) return null
                         return (
                             <Link
                                 key={channel._id}
                                 to={`/channel/${channel.username}`}
-                                className="flex items-center gap-4 p-4 bg-gray-800/50 rounded-xl hover:bg-gray-800 transition-colors"
+                                className="flex items-center gap-4 p-4 bg-gray-800/40 rounded-xl hover:bg-gray-800/80 transition-all duration-200 card-hover border border-gray-800/50 animate-fadeIn"
+                                style={{ animationDelay: `${index * 50}ms`, animationFillMode: 'both' }}
                             >
                                 <Avatar src={channel.avatar} alt={channel.fullName} size="lg" />
                                 <div className="flex-1 min-w-0">

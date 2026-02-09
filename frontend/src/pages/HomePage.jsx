@@ -19,7 +19,7 @@ function HomePage() {
     }
 
     return (
-        <div>
+        <div className="animate-fadeIn">
             <h1 className="text-xl sm:text-2xl font-bold text-white mb-4 sm:mb-6">Recommended</h1>
 
             <VideoGrid
@@ -31,10 +31,10 @@ function HomePage() {
 
             {/* Load more button */}
             {pagination.hasNextPage && !isLoading && (
-                <div className="flex justify-center mt-8">
+                <div className="flex justify-center mt-10">
                     <button
                         onClick={handleLoadMore}
-                        className="bg-gray-800 hover:bg-gray-700 text-white px-6 py-2.5 rounded-full transition-colors min-h-[44px]"
+                        className="bg-gray-800 hover:bg-gray-700 active:scale-95 text-white px-8 py-2.5 rounded-full transition-all duration-200 min-h-[44px] font-medium border border-gray-700/50 hover:border-gray-600"
                     >
                         Load more
                     </button>
@@ -43,7 +43,7 @@ function HomePage() {
 
             {/* Loading more indicator */}
             {isLoading && videos.length > 0 && (
-                <div className="flex justify-center mt-8">
+                <div className="flex justify-center mt-10">
                     <LoadingSpinner size="md" />
                 </div>
             )}

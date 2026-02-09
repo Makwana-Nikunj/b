@@ -116,9 +116,9 @@ function ChannelPage() {
     }
 
     return (
-        <div>
+        <div className="animate-fadeIn">
             {/* Cover Image */}
-            <div className="h-48 bg-gray-800 rounded-xl overflow-hidden">
+            <div className="h-48 bg-gradient-to-r from-gray-800 to-gray-900 rounded-xl overflow-hidden">
                 {channel.coverImage && (
                     <img
                         src={channel.coverImage}
@@ -153,11 +153,11 @@ function ChannelPage() {
             </div>
 
             {/* Tabs */}
-            <div className="flex gap-6 mt-6 border-b border-gray-800">
+            <div className="flex gap-6 mt-6 border-b border-gray-800/50">
                 <button
                     onClick={() => setActiveTab('videos')}
-                    className={`pb-3 px-2 border-b-2 transition-colors ${activeTab === 'videos'
-                        ? 'border-white text-white'
+                    className={`pb-3 px-2 border-b-2 transition-all duration-200 font-medium ${activeTab === 'videos'
+                        ? 'border-primary-500 text-white'
                         : 'border-transparent text-gray-400 hover:text-white'
                         }`}
                 >
@@ -165,8 +165,8 @@ function ChannelPage() {
                 </button>
                 <button
                     onClick={() => setActiveTab('playlists')}
-                    className={`pb-3 px-2 border-b-2 transition-colors ${activeTab === 'playlists'
-                        ? 'border-white text-white'
+                    className={`pb-3 px-2 border-b-2 transition-all duration-200 font-medium ${activeTab === 'playlists'
+                        ? 'border-primary-500 text-white'
                         : 'border-transparent text-gray-400 hover:text-white'
                         }`}
                 >
@@ -174,8 +174,8 @@ function ChannelPage() {
                 </button>
                 <button
                     onClick={() => setActiveTab('about')}
-                    className={`pb-3 px-2 border-b-2 transition-colors ${activeTab === 'about'
-                        ? 'border-white text-white'
+                    className={`pb-3 px-2 border-b-2 transition-all duration-200 font-medium ${activeTab === 'about'
+                        ? 'border-primary-500 text-white'
                         : 'border-transparent text-gray-400 hover:text-white'
                         }`}
                 >
@@ -184,7 +184,7 @@ function ChannelPage() {
             </div>
 
             {/* Tab Content */}
-            <div className="mt-6">
+            <div className="mt-6 animate-fadeIn" key={activeTab}>
                 {activeTab === 'videos' && (
                     <VideoGrid
                         videos={videos}
@@ -204,11 +204,12 @@ function ChannelPage() {
                         />
                     ) : (
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                            {playlists.map((playlist) => (
+                            {playlists.map((playlist, index) => (
                                 <Link
                                     key={playlist._id}
                                     to={`/playlist/${playlist._id}`}
-                                    className="bg-gray-800/50 rounded-xl overflow-hidden hover:bg-gray-800 transition-colors"
+                                    className="bg-gray-800/40 rounded-xl overflow-hidden hover:bg-gray-800/80 transition-all duration-200 card-hover border border-gray-700/30 animate-fadeIn"
+                                    style={{ animationDelay: `${index * 60}ms`, animationFillMode: 'both' }}
                                 >
                                     <div className="aspect-video bg-gray-700 relative">
                                         {playlist.videos?.[0]?.thumbnail ? (

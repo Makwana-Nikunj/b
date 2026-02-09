@@ -4,12 +4,12 @@ import { useDispatch, useSelector } from 'react-redux'
 import { fetchVideoById, clearCurrentVideo } from '../store/slices/videoSlice'
 import { fetchUserPlaylists, addVideoToPlaylist, removeVideoFromPlaylist, createPlaylist } from '../store/slices/playlistSlice'
 import { VideoPlayer } from '../components/video'
-import { Avatar, Button, Textarea, Modal, Input } from '../components/ui'
-import { VideoPlayerSkeleton, VideoCardSkeleton, CommentsSkeleton } from '../components/ui/Skeleton'
+import { Avatar, Button, Textarea, Modal, Input, LoadingSpinner } from '../components/ui'
+import { VideoPlayerSkeleton, RelatedVideosSkeleton, CommentsSkeleton } from '../components/ui/Skeleton'
 import { formatDistanceToNow } from '../utils/formatDate'
 import { formatViews, formatSubscribers } from '../utils/formatNumber'
 import { formatDuration } from '../utils/formatDuration'
-import { HiThumbUp, HiThumbDown, HiShare, HiBookmark, HiPlus, HiCheck } from 'react-icons/hi'
+import { HiThumbUp, HiThumbDown, HiShare, HiBookmark, HiPlus, HiCheck, HiChevronDown, HiChevronUp } from 'react-icons/hi'
 import { likeService, commentService, subscriptionService, authService, videoService } from '../services'
 import { useForm } from 'react-hook-form'
 import toast from 'react-hot-toast'
@@ -31,6 +31,8 @@ function VideoPage() {
     const [showCreatePlaylist, setShowCreatePlaylist] = useState(false)
     const [relatedVideos, setRelatedVideos] = useState([])
     const [relatedLoading, setRelatedLoading] = useState(false)
+    const [showDescription, setShowDescription] = useState(false)
+    const [showCommentInput, setShowCommentInput] = useState(false)
 
     const { register, handleSubmit, reset, formState: { errors } } = useForm({
         defaultValues: { name: '', description: '' }
@@ -226,18 +228,15 @@ function VideoPage() {
 
     if (isVideoLoading) {
         return (
-            <div className="flex flex-col lg:flex-row gap-6">
+            <div className="flex flex-col lg:flex-row gap-4 lg:gap-6 -mx-4 sm:mx-0">
                 <div className="flex-1 min-w-0">
                     <VideoPlayerSkeleton />
-                    <div className="mt-8">
-                        <div className="h-6 bg-gray-700 rounded w-24 mb-4 animate-pulse" />
+                    <div className="mt-6 px-4 sm:px-0">
                         <CommentsSkeleton count={3} />
                     </div>
                 </div>
-                <div className="lg:w-96 space-y-4">
-                    {Array.from({ length: 6 }).map((_, i) => (
-                        <VideoCardSkeleton key={i} />
-                    ))}
+                <div className="lg:w-[360px] flex-shrink-0 px-4 sm:px-0">
+                    <RelatedVideosSkeleton count={6} />
                 </div>
             </div>
         )
@@ -254,142 +253,191 @@ function VideoPage() {
     const { title, description, views, createdAt, videoFile, thumbnail, owner } = currentVideo
 
     return (
-        <div className="flex flex-col lg:flex-row gap-6">
+        <div className="flex flex-col lg:flex-row gap-4 lg:gap-6 animate-fadeIn -mx-4 sm:mx-0">
             {/* Main content - Video and comments */}
             <div className="flex-1 min-w-0">
-                {/* Video Player */}
-                <VideoPlayer src={videoFile} poster={thumbnail} title={title} />
+                {/* Video Player - edge-to-edge on mobile */}
+                <div className="sm:rounded-2xl overflow-hidden">
+                    <VideoPlayer src={videoFile} poster={thumbnail} title={title} />
+                </div>
 
-                {/* Video Info */}
-                <div className="mt-4">
-                    <h1 className="text-xl font-bold text-white">{title}</h1>
+                {/* Video Info - padded on mobile */}
+                <div className="mt-3 sm:mt-4 px-4 sm:px-0">
+                    <h1 className="text-lg sm:text-xl font-bold text-white leading-snug">{title}</h1>
 
-                    <div className="flex flex-wrap items-center justify-between gap-4 mt-4">
-                        {/* Channel info */}
-                        <div className="flex items-center gap-3">
+                    {/* Views & date - compact on mobile */}
+                    <div className="text-gray-400 text-xs sm:text-sm mt-1.5 sm:mt-2">
+                        <span>{formatViews(views)} views</span>
+                        <span className="mx-1.5">•</span>
+                        <span>{formatDistanceToNow(createdAt)}</span>
+                    </div>
+
+                    {/* Channel + Subscribe */}
+                    <div className="flex items-center justify-between gap-3 mt-3 sm:mt-4">
+                        <Link to={`/channel/${owner?.username}`} className="flex items-center gap-2.5 sm:gap-3 min-w-0 group">
                             <Avatar src={owner?.avatar} alt={owner?.fullName} size="lg" />
-                            <div>
-                                <h3 className="text-white font-medium">{owner?.fullName}</h3>
-                                <p className="text-gray-400 text-sm">
+                            <div className="min-w-0">
+                                <h3 className="text-white font-medium text-sm sm:text-base truncate group-hover:text-primary-400 transition-colors">{owner?.fullName}</h3>
+                                <p className="text-gray-400 text-xs sm:text-sm">
                                     {formatSubscribers(owner?.subscriberCount || 0)}
                                 </p>
                             </div>
-                            {isAuthenticated && user?._id !== owner?._id && (
-                                <Button
-                                    variant={isSubscribed ? 'secondary' : 'primary'}
-                                    onClick={handleSubscribe}
-                                    className="ml-4"
-                                >
-                                    {isSubscribed ? 'Subscribed' : 'Subscribe'}
-                                </Button>
-                            )}
-                        </div>
-
-                        {/* Actions */}
-                        <div className="flex items-center gap-2">
-                            <button
-                                onClick={handleLike}
-                                className={`flex items-center gap-2 px-4 py-2 rounded-full transition-colors ${isLiked ? 'bg-blue-600 text-white' : 'bg-gray-800 text-white hover:bg-gray-700'
-                                    }`}
+                        </Link>
+                        {isAuthenticated && user?._id !== owner?._id && (
+                            <Button
+                                variant={isSubscribed ? 'secondary' : 'primary'}
+                                onClick={handleSubscribe}
+                                className="flex-shrink-0 !rounded-full !px-4 sm:!px-5 !py-2 !text-sm font-medium"
                             >
-                                <HiThumbUp className="w-5 h-5" />
-                                <span>{likeCount}</span>
-                            </button>
-
-                            <button className="flex items-center gap-2 bg-gray-800 text-white px-4 py-2 rounded-full hover:bg-gray-700 transition-colors">
-                                <HiThumbDown className="w-5 h-5" />
-                            </button>
-
-                            <button className="flex items-center gap-2 bg-gray-800 text-white px-4 py-2 rounded-full hover:bg-gray-700 transition-colors">
-                                <HiShare className="w-5 h-5" />
-                                <span>Share</span>
-                            </button>
-
-                            <button
-                                onClick={handleSaveToPlaylist}
-                                className="flex items-center gap-2 bg-gray-800 text-white px-4 py-2 rounded-full hover:bg-gray-700 transition-colors"
-                            >
-                                <HiBookmark className="w-5 h-5" />
-                                <span>Save</span>
-                            </button>
-                        </div>
+                                {isSubscribed ? 'Subscribed' : 'Subscribe'}
+                            </Button>
+                        )}
                     </div>
 
-                    {/* Description */}
-                    <div className="mt-4 bg-gray-800/50 rounded-xl p-4">
-                        <div className="text-gray-400 text-sm mb-2">
-                            <span>{formatViews(views)} views</span>
-                            <span className="mx-2">•</span>
-                            <span>{formatDistanceToNow(createdAt)}</span>
-                        </div>
-                        <p className="text-white whitespace-pre-wrap">{description}</p>
+                    {/* Action buttons - icons only on mobile, with text on desktop */}
+                    <div className="flex items-center gap-1.5 sm:gap-2 mt-3 sm:mt-4 overflow-x-auto scrollbar-none pb-1">
+                        <button
+                            onClick={handleLike}
+                            className={`flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 rounded-full text-sm transition-all duration-200 active:scale-95 flex-shrink-0 ${isLiked ? 'bg-primary-600 text-white shadow-lg shadow-primary-600/20' : 'bg-gray-800 text-white hover:bg-gray-700'
+                                }`}
+                        >
+                            <HiThumbUp className="w-5 h-5" />
+                            <span className="font-medium">{likeCount}</span>
+                        </button>
+
+                        <button className="flex items-center bg-gray-800 text-white p-2 sm:px-4 sm:py-2 rounded-full hover:bg-gray-700 transition-all duration-200 active:scale-95 flex-shrink-0">
+                            <HiThumbDown className="w-5 h-5" />
+                        </button>
+
+                        <button
+                            onClick={() => {
+                                navigator.clipboard?.writeText(window.location.href)
+                                toast.success('Link copied!')
+                            }}
+                            className="flex items-center gap-1.5 bg-gray-800 text-white px-3 sm:px-4 py-2 rounded-full hover:bg-gray-700 transition-all duration-200 active:scale-95 flex-shrink-0"
+                        >
+                            <HiShare className="w-5 h-5" />
+                            <span className="hidden sm:inline text-sm">Share</span>
+                        </button>
+
+                        <button
+                            onClick={handleSaveToPlaylist}
+                            className="flex items-center gap-1.5 bg-gray-800 text-white px-3 sm:px-4 py-2 rounded-full hover:bg-gray-700 transition-all duration-200 active:scale-95 flex-shrink-0"
+                        >
+                            <HiBookmark className="w-5 h-5" />
+                            <span className="hidden sm:inline text-sm">Save</span>
+                        </button>
                     </div>
+
+                    {/* Description - collapsible */}
+                    <button
+                        onClick={() => setShowDescription(!showDescription)}
+                        className="w-full mt-3 sm:mt-4 bg-gray-800/40 backdrop-blur-sm rounded-xl p-3 sm:p-4 border border-gray-700/30 hover:bg-gray-800/60 transition-colors duration-200 text-left"
+                    >
+                        {!showDescription ? (
+                            <div>
+                                <p className="text-white text-sm line-clamp-2">{description}</p>
+                                <div className="flex items-center gap-1 text-gray-400 text-xs mt-2 font-medium">
+                                    <span>Show more</span>
+                                    <HiChevronDown className="w-4 h-4" />
+                                </div>
+                            </div>
+                        ) : (
+                            <div>
+                                <p className="text-white text-sm whitespace-pre-wrap">{description}</p>
+                                <div className="flex items-center gap-1 text-gray-400 text-xs mt-3 font-medium">
+                                    <span>Show less</span>
+                                    <HiChevronUp className="w-4 h-4" />
+                                </div>
+                            </div>
+                        )}
+                    </button>
                 </div>
 
                 {/* Comments Section */}
-                <div className="mt-8">
-                    <h2 className="text-lg font-bold text-white mb-4">
+                <div className="mt-6 sm:mt-8 px-4 sm:px-0">
+                    <h2 className="text-base sm:text-lg font-bold text-white mb-3 sm:mb-4">
                         {comments.length} Comments
                     </h2>
 
-                    {/* Add comment */}
+                    {/* Add comment - compact for mobile */}
                     {isAuthenticated ? (
-                        <form onSubmit={handleAddComment} className="flex gap-3 mb-6">
-                            <Avatar src={user?.avatar} alt={user?.fullName} size="md" />
-                            <div className="flex-1">
-                                <Textarea
-                                    placeholder="Add a comment..."
-                                    value={newComment}
-                                    onChange={(e) => setNewComment(e.target.value)}
-                                    rows={2}
-                                />
-                                <div className="flex justify-end gap-2 mt-2">
-                                    <Button
-                                        variant="ghost"
-                                        onClick={() => setNewComment('')}
-                                        disabled={!newComment.trim()}
-                                    >
-                                        Cancel
-                                    </Button>
-                                    <Button type="submit" disabled={!newComment.trim()}>
-                                        Comment
-                                    </Button>
-                                </div>
-                            </div>
-                        </form>
+                        <div className="mb-4 sm:mb-6">
+                            {!showCommentInput ? (
+                                <button
+                                    onClick={() => setShowCommentInput(true)}
+                                    className="flex items-center gap-3 w-full"
+                                >
+                                    <Avatar src={user?.avatar} alt={user?.fullName} size="sm" />
+                                    <div className="flex-1 text-left text-gray-400 text-sm bg-transparent border-b border-gray-700 pb-2">
+                                        Add a comment...
+                                    </div>
+                                </button>
+                            ) : (
+                                <form onSubmit={handleAddComment} className="flex gap-2 sm:gap-3">
+                                    <Avatar src={user?.avatar} alt={user?.fullName} size="sm" className="mt-1 hidden sm:block" />
+                                    <div className="flex-1">
+                                        <Textarea
+                                            placeholder="Add a comment..."
+                                            value={newComment}
+                                            onChange={(e) => setNewComment(e.target.value)}
+                                            rows={2}
+                                            autoFocus
+                                        />
+                                        <div className="flex justify-end gap-2 mt-2">
+                                            <Button
+                                                variant="ghost"
+                                                size="sm"
+                                                onClick={() => {
+                                                    setNewComment('')
+                                                    setShowCommentInput(false)
+                                                }}
+                                            >
+                                                Cancel
+                                            </Button>
+                                            <Button type="submit" size="sm" disabled={!newComment.trim()}>
+                                                Comment
+                                            </Button>
+                                        </div>
+                                    </div>
+                                </form>
+                            )}
+                        </div>
                     ) : (
-                        <p className="text-gray-400 mb-6">Sign in to comment</p>
+                        <p className="text-gray-400 text-sm mb-4 sm:mb-6">Sign in to comment</p>
                     )}
 
                     {/* Comments list */}
                     {commentsLoading ? (
-                        <div className="flex justify-center py-4">
-                            <LoadingSpinner />
-                        </div>
+                        <CommentsSkeleton count={4} />
                     ) : (
-                        <div className="space-y-4">
-                            {comments.map((comment) => (
-                                <div key={comment._id} className="flex gap-3">
+                        <div className="space-y-3 sm:space-y-4">
+                            {comments.map((comment, index) => (
+                                <div
+                                    key={comment._id}
+                                    className="flex gap-2.5 sm:gap-3 animate-fadeIn"
+                                    style={{ animationDelay: `${index * 40}ms`, animationFillMode: 'both' }}
+                                >
                                     <Avatar
                                         src={comment.owner?.avatar}
                                         alt={comment.owner?.fullName}
-                                        size="md"
+                                        size="sm"
                                     />
-                                    <div className="flex-1">
+                                    <div className="flex-1 min-w-0">
                                         <div className="flex items-center gap-2">
-                                            <span className="text-white font-medium">
+                                            <span className="text-white font-medium text-sm">
                                                 {comment.owner?.fullName}
                                             </span>
-                                            <span className="text-gray-500 text-sm">
+                                            <span className="text-gray-500 text-xs">
                                                 {formatDistanceToNow(comment.createdAt)}
                                             </span>
                                         </div>
-                                        <p className="text-gray-300 mt-1">{comment.content}</p>
+                                        <p className="text-gray-300 text-sm mt-0.5">{comment.content}</p>
 
                                         {user?._id === comment.owner?._id && (
                                             <button
                                                 onClick={() => handleDeleteComment(comment._id)}
-                                                className="text-red-500 text-sm mt-2 hover:underline"
+                                                className="text-red-400 text-xs mt-1.5 hover:text-red-300 transition-colors duration-200"
                                             >
                                                 Delete
                                             </button>
@@ -403,48 +451,78 @@ function VideoPage() {
             </div>
 
             {/* Related Videos Sidebar */}
-            <div className="w-full lg:w-[320px] flex-shrink-0">
-                <h3 className="text-lg font-semibold text-white mb-4">Related Videos</h3>
+            <div className="w-full lg:w-[360px] flex-shrink-0 px-4 sm:px-0">
+                <h3 className="text-base sm:text-lg font-semibold text-white mb-3 sm:mb-4">Related Videos</h3>
                 {relatedLoading ? (
-                    <div className="flex justify-center py-4">
-                        <LoadingSpinner />
-                    </div>
+                    <RelatedVideosSkeleton count={6} />
                 ) : relatedVideos.length === 0 ? (
-                    <p className="text-gray-400">No related videos found</p>
+                    <p className="text-gray-500 text-center py-8 text-sm">No related videos found</p>
                 ) : (
-                    <div className="space-y-3">
-                        {relatedVideos.map((video) => (
-                            <Link
-                                key={video._id}
-                                to={`/video/${video._id}`}
-                                className="flex gap-3 group hover:bg-gray-800/50 p-2 rounded-lg transition-colors"
-                            >
-                                <div className="relative flex-shrink-0">
-                                    <img
-                                        src={video.thumbnail}
-                                        alt={video.title}
-                                        className="w-36 h-20 object-cover rounded-lg bg-gray-800"
-                                    />
-                                    {video.duration && (
-                                        <span className="absolute bottom-1 right-1 bg-black/80 text-white text-[10px] px-1 py-0.5 rounded">
-                                            {formatDuration(video.duration)}
-                                        </span>
-                                    )}
-                                </div>
-                                <div className="flex-1 min-w-0">
-                                    <h4 className="text-white text-sm font-medium line-clamp-2 group-hover:text-blue-400 transition-colors">
-                                        {video.title}
-                                    </h4>
-                                    <p className="text-gray-400 text-xs mt-1">
-                                        {video.owner?.fullName}
-                                    </p>
-                                    <p className="text-gray-400 text-xs">
-                                        {formatViews(video.views)} views • {formatDistanceToNow(video.createdAt)}
-                                    </p>
-                                </div>
-                            </Link>
-                        ))}
-                    </div>
+                    <>
+                        {/* Mobile: horizontal scroll */}
+                        <div className="flex gap-3 overflow-x-auto scrollbar-none pb-3 -mx-4 px-4 sm:hidden">
+                            {relatedVideos.map((video, index) => (
+                                <Link
+                                    key={video._id}
+                                    to={`/video/${video._id}`}
+                                    className="flex-shrink-0 w-[200px] group animate-fadeIn"
+                                    style={{ animationDelay: `${index * 40}ms`, animationFillMode: 'both' }}
+                                >
+                                    <div className="relative">
+                                        <img
+                                            src={video.thumbnail}
+                                            alt={video.title}
+                                            className="w-full h-[112px] object-cover rounded-xl bg-gray-800"
+                                        />
+                                        {video.duration && (
+                                            <span className="absolute bottom-1 right-1 bg-black/80 text-white text-[10px] px-1.5 py-0.5 rounded font-medium">
+                                                {formatDuration(video.duration)}
+                                            </span>
+                                        )}
+                                    </div>
+                                    <h4 className="text-white text-xs font-medium line-clamp-2 mt-2 group-hover:text-primary-400 transition-colors">{video.title}</h4>
+                                    <p className="text-gray-400 text-[11px] mt-0.5">{video.owner?.fullName}</p>
+                                    <p className="text-gray-500 text-[11px]">{formatViews(video.views)} views</p>
+                                </Link>
+                            ))}
+                        </div>
+
+                        {/* Desktop: vertical list */}
+                        <div className="hidden sm:block space-y-2">
+                            {relatedVideos.map((video, index) => (
+                                <Link
+                                    key={video._id}
+                                    to={`/video/${video._id}`}
+                                    className="flex gap-3 group hover:bg-gray-800/50 p-2 rounded-xl transition-all duration-200 animate-fadeIn"
+                                    style={{ animationDelay: `${index * 40}ms`, animationFillMode: 'both' }}
+                                >
+                                    <div className="relative flex-shrink-0">
+                                        <img
+                                            src={video.thumbnail}
+                                            alt={video.title}
+                                            className="w-40 h-[90px] object-cover rounded-lg bg-gray-800"
+                                        />
+                                        {video.duration && (
+                                            <span className="absolute bottom-1 right-1 bg-black/80 text-white text-[10px] px-1.5 py-0.5 rounded font-medium">
+                                                {formatDuration(video.duration)}
+                                            </span>
+                                        )}
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                        <h4 className="text-white text-sm font-medium line-clamp-2 group-hover:text-primary-400 transition-colors">
+                                            {video.title}
+                                        </h4>
+                                        <p className="text-gray-400 text-xs mt-1">
+                                            {video.owner?.fullName}
+                                        </p>
+                                        <p className="text-gray-500 text-xs">
+                                            {formatViews(video.views)} views • {formatDistanceToNow(video.createdAt)}
+                                        </p>
+                                    </div>
+                                </Link>
+                            ))}
+                        </div>
+                    </>
                 )}
             </div>
 

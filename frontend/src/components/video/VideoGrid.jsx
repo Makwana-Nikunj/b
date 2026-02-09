@@ -14,18 +14,26 @@ function VideoGrid({ videos, isLoading, emptyMessage = 'No videos found', skelet
 
     if (videoList.length === 0) {
         return (
-            <EmptyState
-                icon={HiFilm}
-                title={emptyMessage}
-                description="Videos you're looking for will appear here"
-            />
+            <div className="animate-fadeIn">
+                <EmptyState
+                    icon={HiFilm}
+                    title={emptyMessage}
+                    description="Videos you're looking for will appear here"
+                />
+            </div>
         )
     }
 
     return (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {videoList.map((video) => (
-                <VideoCard key={video._id} video={video} />
+            {videoList.map((video, index) => (
+                <div
+                    key={video._id}
+                    className="animate-fadeIn"
+                    style={{ animationDelay: `${index * 50}ms`, animationFillMode: 'both' }}
+                >
+                    <VideoCard video={video} />
+                </div>
             ))}
         </div>
     )

@@ -120,15 +120,15 @@ function SettingsPage() {
     }
 
     return (
-        <div className="max-w-3xl mx-auto">
+        <div className="max-w-3xl mx-auto animate-fadeIn">
             <h1 className="text-2xl font-bold text-white mb-6">Settings</h1>
 
             {/* Tabs */}
-            <div className="flex gap-4 border-b border-gray-800 mb-6">
+            <div className="flex gap-4 border-b border-gray-800/50 mb-6">
                 <button
                     onClick={() => setActiveTab('profile')}
-                    className={`pb-3 px-2 border-b-2 transition-colors ${activeTab === 'profile'
-                        ? 'border-white text-white'
+                    className={`pb-3 px-2 border-b-2 transition-all duration-200 font-medium ${activeTab === 'profile'
+                        ? 'border-primary-500 text-white'
                         : 'border-transparent text-gray-400 hover:text-white'
                         }`}
                 >
@@ -136,8 +136,8 @@ function SettingsPage() {
                 </button>
                 <button
                     onClick={() => setActiveTab('security')}
-                    className={`pb-3 px-2 border-b-2 transition-colors ${activeTab === 'security'
-                        ? 'border-white text-white'
+                    className={`pb-3 px-2 border-b-2 transition-all duration-200 font-medium ${activeTab === 'security'
+                        ? 'border-primary-500 text-white'
                         : 'border-transparent text-gray-400 hover:text-white'
                         }`}
                 >
@@ -145,7 +145,7 @@ function SettingsPage() {
                 </button>
                 <button
                     onClick={() => setActiveTab('danger')}
-                    className={`pb-3 px-2 border-b-2 transition-colors ${activeTab === 'danger'
+                    className={`pb-3 px-2 border-b-2 transition-all duration-200 font-medium ${activeTab === 'danger'
                         ? 'border-red-500 text-red-500'
                         : 'border-transparent text-gray-400 hover:text-red-400'
                         }`}
@@ -156,7 +156,7 @@ function SettingsPage() {
 
             {/* Profile Tab */}
             {activeTab === 'profile' && (
-                <div className="space-y-8">
+                <div className="space-y-8 animate-fadeIn">
                     {/* Cover Image */}
                     <div>
                         <label className="block text-sm font-medium text-gray-300 mb-2">
@@ -243,7 +243,7 @@ function SettingsPage() {
 
             {/* Security Tab */}
             {activeTab === 'security' && (
-                <form onSubmit={handlePasswordSubmit(onChangePassword)} className="space-y-4">
+                <form onSubmit={handlePasswordSubmit(onChangePassword)} className="space-y-4 animate-fadeIn">
                     <h2 className="text-lg font-semibold text-white mb-4">Change Password</h2>
 
                     <Input
@@ -284,7 +284,7 @@ function SettingsPage() {
 
             {/* Danger Zone Tab */}
             {activeTab === 'danger' && (
-                <div className="space-y-6">
+                <div className="space-y-6 animate-fadeIn">
                     <div className="border border-red-500/50 rounded-xl p-6 bg-red-500/10">
                         <h2 className="text-lg font-semibold text-red-500 mb-2">Delete Account</h2>
                         <p className="text-gray-400 mb-4">

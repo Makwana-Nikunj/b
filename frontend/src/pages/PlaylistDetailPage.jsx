@@ -10,7 +10,7 @@ import {
 } from '../store/slices/playlistSlice'
 import { VideoListItem } from '../components/video'
 import { Button, Modal, Input, Textarea, EmptyState } from '../components/ui'
-import { VideoGridSkeleton } from '../components/ui/Skeleton'
+import { PlaylistDetailSkeleton } from '../components/ui/Skeleton'
 import { HiArrowLeft, HiPencil, HiFilm } from 'react-icons/hi'
 import toast from 'react-hot-toast'
 
@@ -68,18 +68,7 @@ function PlaylistDetailPage() {
     }
 
     if (isLoading) {
-        return (
-            <div>
-                <div className="flex items-center gap-4 mb-6">
-                    <div className="w-10 h-10 bg-gray-700 rounded-full animate-pulse" />
-                    <div className="flex-1 space-y-2">
-                        <div className="h-8 bg-gray-700 rounded w-48 animate-pulse" />
-                        <div className="h-4 bg-gray-700 rounded w-32 animate-pulse" />
-                    </div>
-                </div>
-                <VideoGridSkeleton count={4} />
-            </div>
-        )
+        return <PlaylistDetailSkeleton />
     }
 
     if (!currentPlaylist) {
@@ -93,12 +82,12 @@ function PlaylistDetailPage() {
     const isOwner = user?._id === currentPlaylist.owner?._id
 
     return (
-        <div>
+        <div className="animate-fadeIn">
             {/* Header */}
             <div className="flex items-center gap-4 mb-6">
                 <button
                     onClick={() => navigate(-1)}
-                    className="p-2 hover:bg-gray-800 rounded-full transition-colors"
+                    className="p-2 hover:bg-gray-800 rounded-full transition-all duration-200 active:scale-95"
                 >
                     <HiArrowLeft className="w-6 h-6 text-white" />
                 </button>
@@ -125,9 +114,13 @@ function PlaylistDetailPage() {
                     description="Add videos to this playlist to see them here"
                 />
             ) : (
-                <div className="space-y-4">
+                <div className="space-y-3">
                     {currentPlaylist.videos.map((video, index) => (
-                        <div key={video._id} className="flex items-center gap-4">
+                        <div
+                            key={video._id}
+                            className="flex items-center gap-4 animate-fadeIn"
+                            style={{ animationDelay: `${index * 50}ms`, animationFillMode: 'both' }}
+                        >
                             <span className="text-gray-500 w-8 text-right">{index + 1}</span>
                             <div className="flex-1">
                                 <VideoListItem

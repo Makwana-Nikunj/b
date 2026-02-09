@@ -55,7 +55,7 @@ function PlaylistPage() {
     }
 
     return (
-        <div>
+        <div className="animate-fadeIn">
             <div className="flex items-center justify-between mb-6">
                 <h1 className="text-2xl font-bold text-white">Your Playlists</h1>
                 <Button onClick={() => setShowCreateModal(true)}>
@@ -80,10 +80,11 @@ function PlaylistPage() {
                 />
             ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                    {playlists.map((playlist) => (
+                    {playlists.map((playlist, index) => (
                         <div
                             key={playlist._id}
-                            className="bg-gray-800/50 rounded-xl overflow-hidden group"
+                            className="bg-gray-800/40 rounded-xl overflow-hidden group border border-gray-700/30 card-hover animate-fadeIn"
+                            style={{ animationDelay: `${index * 60}ms`, animationFillMode: 'both' }}
                         >
                             <Link to={`/playlist/${playlist._id}`}>
                                 <div className="aspect-video bg-gray-700 relative">
@@ -113,7 +114,7 @@ function PlaylistPage() {
                                     </Link>
                                     <button
                                         onClick={() => handleDelete(playlist._id)}
-                                        className="opacity-0 group-hover:opacity-100 text-gray-400 hover:text-red-500 transition-all p-1"
+                                        className="opacity-0 group-hover:opacity-100 text-gray-400 hover:text-red-500 transition-all duration-200 p-1 hover:bg-red-500/10 rounded-lg"
                                     >
                                         <HiTrash className="w-5 h-5" />
                                     </button>

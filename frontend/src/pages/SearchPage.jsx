@@ -36,9 +36,9 @@ function SearchPage() {
     }
 
     return (
-        <div>
+        <div className="animate-fadeIn">
             <h1 className="text-xl text-white mb-6">
-                Search results for: <span className="font-semibold">"{query}"</span>
+                Search results for: <span className="font-semibold text-primary-400">"{query}"</span>
             </h1>
 
             <VideoGrid

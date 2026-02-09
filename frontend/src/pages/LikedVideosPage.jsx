@@ -28,15 +28,15 @@ function LikedVideosPage() {
 
     if (isLoading) {
         return (
-            <div>
-                <div className="h-8 bg-gray-700 rounded w-32 mb-6 animate-pulse" />
+            <div className="animate-fadeIn">
+                <div className="h-8 skeleton-shimmer rounded-lg w-32 mb-6" />
                 <VideoGridSkeleton count={8} />
             </div>
         )
     }
 
     return (
-        <div>
+        <div className="animate-fadeIn">
             <h1 className="text-2xl font-bold text-white mb-6">Liked Videos</h1>
 
             {likedVideos.length === 0 ? (

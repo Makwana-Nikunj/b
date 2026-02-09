@@ -97,10 +97,10 @@ function EditVideoPage() {
     }
 
     return (
-        <div className="max-w-3xl mx-auto">
+        <div className="max-w-3xl mx-auto animate-fadeIn">
             <button
                 onClick={() => navigate('/dashboard')}
-                className="flex items-center gap-2 text-gray-400 hover:text-white mb-6 transition-colors"
+                className="flex items-center gap-2 text-gray-400 hover:text-white mb-6 transition-all duration-200 active:scale-95"
             >
                 <HiArrowLeft className="w-5 h-5" />
                 Back to Dashboard

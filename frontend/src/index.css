@@ -121,6 +121,15 @@ select:focus {
         display: none;
     }
 
+    .scrollbar-none {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+
+    .scrollbar-none::-webkit-scrollbar {
+        display: none;
+    }
+
     /* Safe area padding utilities */
     .pb-safe {
         padding-bottom: env(safe-area-inset-bottom);
@@ -197,7 +206,7 @@ select:focus {
 @keyframes pageEnter {
     from {
         opacity: 0;
-        transform: translateY(10px);
+        transform: translateY(8px);
     }
 
     to {
@@ -223,26 +232,131 @@ select:focus {
 
 .skeleton-shimmer {
     background: linear-gradient(90deg,
-            #1f1f1f 0%,
-            #2a2a2a 20%,
-            #333333 40%,
-            #2a2a2a 60%,
-            #1f1f1f 100%);
+            #1a1a1a 0%,
+            #252525 20%,
+            #2d2d2d 40%,
+            #252525 60%,
+            #1a1a1a 100%);
     background-size: 200% 100%;
-    animation: shimmer 1.5s ease-in-out infinite;
+    animation: shimmer 1.8s ease-in-out infinite;
 }
 
 /* Fade in animation for content after loading */
 @keyframes contentFadeIn {
     from {
         opacity: 0;
+        transform: translateY(6px);
     }
 
     to {
         opacity: 1;
+        transform: translateY(0);
     }
 }
 
 .content-loaded {
-    animation: contentFadeIn 0.3s ease-out;
+    animation: contentFadeIn 0.4s ease-out;
+}
+
+/* Stagger fade in for list/grid items */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInScale {
+    from {
+        opacity: 0;
+        transform: scale(0.97);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(12px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(16px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Smooth count up animation for stats */
+@keyframes countPop {
+    0% {
+        transform: scale(0.8);
+        opacity: 0;
+    }
+
+    60% {
+        transform: scale(1.05);
+    }
+
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* Card hover lift effect */
+.card-hover {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card-hover:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+}
+
+/* Smooth tab indicator */
+.tab-active {
+    position: relative;
+}
+
+.tab-active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: #3b82f6;
+    border-radius: 1px 1px 0 0;
+    animation: tabSlide 0.2s ease-out;
+}
+
+@keyframes tabSlide {
+    from {
+        transform: scaleX(0);
+    }
+
+    to {
+        transform: scaleX(1);
+    }
 }

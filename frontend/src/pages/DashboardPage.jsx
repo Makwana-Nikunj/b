@@ -72,30 +72,34 @@ function DashboardPage() {
             icon: HiEye,
             label: 'Total Views',
             value: formatViews(stats?.totalViews || 0),
-            color: 'bg-blue-600',
+            color: 'bg-blue-500/20 text-blue-400',
+            iconColor: 'text-blue-400',
         },
         {
             icon: HiFilm,
             label: 'Total Videos',
             value: stats?.totalVideos || 0,
-            color: 'bg-green-600',
+            color: 'bg-green-500/20 text-green-400',
+            iconColor: 'text-green-400',
         },
         {
             icon: HiUserGroup,
             label: 'Subscribers',
             value: formatViews(stats?.totalSubscribers || 0),
-            color: 'bg-purple-600',
+            color: 'bg-purple-500/20 text-purple-400',
+            iconColor: 'text-purple-400',
         },
         {
             icon: HiThumbUp,
             label: 'Total Likes',
             value: formatViews(stats?.totalLikes || 0),
-            color: 'bg-red-600',
+            color: 'bg-red-500/20 text-red-400',
+            iconColor: 'text-red-400',
         },
     ]
 
     return (
-        <div>
+        <div className="animate-fadeIn">
             <h1 className="text-2xl font-bold text-white mb-6">Channel Dashboard</h1>
 
             {/* Stats cards */}
@@ -103,44 +107,50 @@ function DashboardPage() {
                 {statCards.map((stat, index) => (
                     <div
                         key={index}
-                        className="bg-gray-800/50 rounded-xl p-4 flex items-center gap-4"
+                        className="bg-gray-800/40 backdrop-blur-sm rounded-xl p-5 flex items-center gap-4 border border-gray-700/30 card-hover animate-fadeIn"
+                        style={{ animationDelay: `${index * 80}ms`, animationFillMode: 'both' }}
                     >
-                        <div className={`${stat.color} p-3 rounded-lg`}>
-                            <stat.icon className="w-6 h-6 text-white" />
+                        <div className={`${stat.color} p-3 rounded-xl`}>
+                            <stat.icon className={`w-6 h-6 ${stat.iconColor}`} />
                         </div>
                         <div>
-                            <p className="text-gray-400 text-sm">{stat.label}</p>
-                            <p className="text-white text-2xl font-bold">{stat.value}</p>
+                            <p className="text-gray-400 text-sm font-medium">{stat.label}</p>
+                            <p className="text-white text-2xl font-bold animate-countPop">{stat.value}</p>
                         </div>
                     </div>
                 ))}
             </div>
 
             {/* Videos table */}
-            <div className="bg-gray-800/50 rounded-xl overflow-hidden">
-                <div className="p-4 border-b border-gray-700">
+            <div className="bg-gray-800/40 backdrop-blur-sm rounded-xl overflow-hidden border border-gray-700/30">
+                <div className="p-4 border-b border-gray-700/50">
                     <h2 className="text-lg font-semibold text-white">Your Videos</h2>
                 </div>
 
                 {videos.length === 0 ? (
-                    <div className="p-8 text-center text-gray-400">
-                        No videos uploaded yet
+                    <div className="p-12 text-center text-gray-400">
+                        <HiFilm className="w-12 h-12 mx-auto mb-3 text-gray-600" />
+                        <p>No videos uploaded yet</p>
                     </div>
                 ) : (
                     <div className="overflow-x-auto">
                         <table className="w-full">
-                            <thead className="bg-gray-900/50">
+                            <thead className="bg-gray-900/30">
                                 <tr>
-                                    <th className="text-left text-gray-400 px-4 py-3 font-medium">Video</th>
-                                    <th className="text-left text-gray-400 px-4 py-3 font-medium">Views</th>
-                                    <th className="text-left text-gray-400 px-4 py-3 font-medium">Date</th>
-                                    <th className="text-left text-gray-400 px-4 py-3 font-medium">Status</th>
-                                    <th className="text-left text-gray-400 px-4 py-3 font-medium">Actions</th>
+                                    <th className="text-left text-gray-400 px-4 py-3 font-medium text-sm">Video</th>
+                                    <th className="text-left text-gray-400 px-4 py-3 font-medium text-sm">Views</th>
+                                    <th className="text-left text-gray-400 px-4 py-3 font-medium text-sm">Date</th>
+                                    <th className="text-left text-gray-400 px-4 py-3 font-medium text-sm">Status</th>
+                                    <th className="text-left text-gray-400 px-4 py-3 font-medium text-sm">Actions</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-gray-700">
-                                {videos.map((video) => (
-                                    <tr key={video._id} className="hover:bg-gray-800/50">
+                            <tbody className="divide-y divide-gray-700/30">
+                                {videos.map((video, index) => (
+                                    <tr
+                                        key={video._id}
+                                        className="hover:bg-gray-800/50 transition-colors duration-150 animate-fadeIn"
+                                        style={{ animationDelay: `${(index + 4) * 60}ms`, animationFillMode: 'both' }}
+                                    >
                                         <td className="px-4 py-3">
                                             <div className="flex items-center gap-3">
                                                 <img
@@ -165,9 +175,9 @@ function DashboardPage() {
                                         <td className="px-4 py-3">
                                             <button
                                                 onClick={() => handleTogglePublish(video._id)}
-                                                className={`px-3 py-1 rounded-full text-sm ${video.isPublished
-                                                    ? 'bg-green-600/20 text-green-400'
-                                                    : 'bg-yellow-600/20 text-yellow-400'
+                                                className={`px-3 py-1 rounded-full text-sm font-medium transition-all duration-200 hover:scale-105 ${video.isPublished
+                                                    ? 'bg-green-500/15 text-green-400 hover:bg-green-500/25'
+                                                    : 'bg-yellow-500/15 text-yellow-400 hover:bg-yellow-500/25'
                                                     }`}
                                             >
                                                 {video.isPublished ? 'Published' : 'Draft'}

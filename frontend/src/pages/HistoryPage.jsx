@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { authService } from '../services'
 import { VideoListItem } from '../components/video'
 import { EmptyState } from '../components/ui'
-import { VideoGridSkeleton } from '../components/ui/Skeleton'
+import { HistorySkeleton } from '../components/ui/Skeleton'
 import { HiClock } from 'react-icons/hi'
 
 function HistoryPage() {
@@ -26,16 +26,11 @@ function HistoryPage() {
     }
 
     if (isLoading) {
-        return (
-            <div>
-                <div className="h-8 bg-gray-700 rounded w-36 mb-6 animate-pulse" />
-                <VideoGridSkeleton count={6} />
-            </div>
-        )
+        return <HistorySkeleton count={6} />
     }
 
     return (
-        <div className="page-transition">
+        <div className="animate-fadeIn">
             <h1 className="text-2xl font-bold text-white mb-6">Watch History</h1>
 
             {history.length === 0 ? (
@@ -45,9 +40,15 @@ function HistoryPage() {
                     description="Videos you watch will appear here"
                 />
             ) : (
-                <div className="space-y-4">
-                    {history.map((video) => (
-                        <VideoListItem key={video._id} video={video} />
+                <div className="space-y-3">
+                    {history.map((video, index) => (
+                        <div
+                            key={video._id}
+                            className="animate-fadeIn"
+                            style={{ animationDelay: `${index * 50}ms`, animationFillMode: 'both' }}
+                        >
+                            <VideoListItem video={video} />
+                        </div>
                     ))}
                 </div>
             )}
